@@ -1,0 +1,14 @@
+Package: risq
+Title: Representativity Indicators for Survey Quality
+Version: 0.0.0
+Authors@R: c(
+    person("Reijer", "Idema", email = "r.idema@cbs.nl", role = c("aut", "cre")),
+    person("Barry", "Schouten", email = "jg.schouten@cbs.nl", role = c("aut"))
+  )
+Description:
+    A package for the calculation of representativity indicators for survey
+    quality based on survey data.
+License: EUPL-1.2
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
