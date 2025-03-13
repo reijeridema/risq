@@ -27,8 +27,8 @@
 #'
 #' @export
 #' @examples
-#' response_formula <- formula(response ~ gender + age + urb)
-#' risq_survey <- risq(formula = response_formula, data = risq_survey_data)
+#' response_formula <- formula(response ~ gender + age)
+#' risq_hlc <- risq(formula = response_formula, data = hlc)
 risq <- function(
   formula,
   family = c("binomial", "gaussian"),

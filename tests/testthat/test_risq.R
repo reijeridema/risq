@@ -115,3 +115,8 @@ test_that("risq detects invalid input", {
   expect_error(risq(formula, data = data, strata = factor(1:9)), "length must match")
   expect_error(risq(formula, data = data, strata = factor(1:11)), "length must match")
 })
+
+test_that("risq works with hlc data", {
+  response_formula <- formula(response ~ gender + age + job)
+  expect_no_error(risq(formula = response_formula, data = hlc))
+})
