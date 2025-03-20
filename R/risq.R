@@ -3,15 +3,14 @@
 #' @description
 #' Build a `risq` object that can be used as input for indicator functions.
 #'
-#' @param formula An object of class [`formula`][stats::formula]. Specifies the
-#'  response model that will be used to calculate indicators. The left-hand side
-#'  states the response variable, and the right-hand side describes the linear
-#'  model of auxiliary variables used to explain the response.
+#' @param predictor An object of class [`formula`][stats::formula] describing
+#'  the linear model of explanatory variables used to predict the response.
+#'  The left-hand side must be empty.
 #' @param family An optional string that specifies the regression type. Use
 #'  `"binomial"` for logistic regression or `"gaussian"` for linear regression.
 #'  If not provided, logistic regression is used.
 #' @param data A [`data.frame`][base::data.frame] with sample data. Must contain
-#'  all variables used in `formula`. The response variable must be `logical`.
+#'  all variables used in `predictor`. The response variable must be `logical`.
 #' @param weights An optional `numeric` vector with the inclusion weights of the
 #'  sampling units. Values must be strictly positive. If not provided, the
 #'  inclusion weights are set to `1`.
@@ -27,23 +26,22 @@
 #'
 #' @export
 #' @examples
-#' response_formula <- formula(response ~ gender + age)
-#' risq_hlc <- risq(formula = response_formula, data = hlc)
+#' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
 risq <- function(
-  formula,
+  predictor,
   family = c("binomial", "gaussian"),
   data,
   weights = NULL,
   strata = NULL
 ) {
-  # Input validation: formula.
-  validate_formula(formula)
+  # Input validation: predictor.
+  validate_predictor(predictor)
 
   # Input validation: family.
   family <- match.arg(family)
 
   # Input validation: data.
-  validate_data(data, formula)
+  validate_data(data, predictor)
   sample_cnt <- nrow(data)
 
   # Input validation: weights.
@@ -58,7 +56,7 @@ risq <- function(
   }
   validate_strata(strata, sample_cnt)
 
-  model <- build_model(formula, family)
+  model <- build_model(predictor, family)
   design <- build_design(weights, strata)
 
   # Build risq object.
@@ -72,40 +70,24 @@ risq <- function(
   result
 }
 
-validate_formula <- function(formula) {
-  if (!inherits(formula, "formula")) {
-    stop("`formula` must be an object of class formula")
+validate_predictor <- function(predictor) {
+  if (!inherits(predictor, "formula")) {
+    stop("`predictor` must be an object of class formula")
   }
 
-  lhs_variables <- get_lhs_variables(formula)
-  rhs_variables <- get_rhs_variables(formula)
-
-  if (length(lhs_variables) != 1) {
-    stop("`formula` must have exactly 1 dependent variable")
-  }
-
-  if (any(lhs_variables %in% rhs_variables)) {
-    stop("`formula` dependent variable must not also be independent variable")
+  if (has_lhs(predictor)) {
+    stop("`predictor` left-hand side must be empty")
   }
 }
 
-validate_data <- function(data, formula) {
+validate_data <- function(data, predictor) {
   if (!is.data.frame(data)) {
     stop("`data` must be a data frame")
   }
 
-  lhs_variables <- get_lhs_variables(formula)
-  rhs_variables <- get_rhs_variables(formula)
-  formula_variables <- c(lhs_variables, rhs_variables)
-
-  if (!all(formula_variables %in% colnames(data))) {
-    stop("`data` must contain all variables used in `formula`")
-  }
-
-  for (v in lhs_variables) {
-    if (!is.logical(data[[v]])) {
-      stop("dependent variable `", v, "` must be a logical vector")
-    }
+  predictor_variables <- get_rhs_variables(predictor)
+  if (!all(predictor_variables %in% colnames(data))) {
+    stop("`data` must contain all variables used in `predictor`")
   }
 }
 
