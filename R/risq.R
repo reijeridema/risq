@@ -56,6 +56,7 @@ risq <- function(
   }
   validate_strata(strata, sample_cnt)
 
+  # Build model and design.
   model <- build_model(predictor, family)
   design <- build_design(weights, strata)
 
@@ -70,6 +71,12 @@ risq <- function(
   result
 }
 
+# Check if `x` is a `risq` object.
+is_risq <- function(x) {
+  inherits(x, "risq")
+}
+
+# Validate that predictor is a formula with empty left-hand side.
 validate_predictor <- function(predictor) {
   if (!inherits(predictor, "formula")) {
     stop("`predictor` must be an object of class formula")
@@ -80,6 +87,7 @@ validate_predictor <- function(predictor) {
   }
 }
 
+# Validate that data is a data frame that contains all predictor variables.
 validate_data <- function(data, predictor) {
   if (!is.data.frame(data)) {
     stop("`data` must be a data frame")
@@ -91,6 +99,7 @@ validate_data <- function(data, predictor) {
   }
 }
 
+# Validate that weights is a numeric vector of the expected length.
 validate_weights <- function(weights, expected_length) {
   if (!is.numeric(weights)) {
     stop("`weights` must be a numeric vector")
@@ -103,6 +112,7 @@ validate_weights <- function(weights, expected_length) {
   }
 }
 
+# Validate that strate is a factor of the expected length.
 validate_strata <- function(strata, expected_length) {
   if (!is.factor(strata)) {
     stop("`strata` must be a factor")
