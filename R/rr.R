@@ -28,33 +28,3 @@ rr <- function(robj, target) {
 
   response_rate
 }
-
-# Validate risq object.
-validate_risq_object <- function(robj) {
-  if (!is_risq(robj)) {
-    stop("`robj` must be a risq object")
-  }
-}
-
-# Validate target variable within the context of a valid risq object.
-validate_target <- function(robj, target) {
-  if (!is.character(target) || length(target) != 1) {
-    stop("`target` must be a string")
-  }
-
-  predictor_variables <- get_rhs_variables(robj$model$predictor)
-  is_target_in_predictor <- target %in% predictor_variables
-  if (is_target_in_predictor) {
-    stop("`target` variable must not be in risq predictor")
-  }
-
-  is_target_in_data <- target %in% names(robj$data)
-  if (!is_target_in_data) {
-    stop("`target` variable must be present in risq data")
-  }
-
-  is_target_logical <- is.logical(robj$data[[target]])
-  if (!is_target_logical) {
-    stop("`target` variable must be logical in risq data")
-  }
-}

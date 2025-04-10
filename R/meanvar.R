@@ -15,3 +15,18 @@ weighted_var <- function(x, weights, method = c("unbiased", "ML")) {
   
   x_var_numer / x_var_denom
 }
+
+# Calculate the weighted means by category, for all categories specified by a
+# given list of factors. Returns a vector of the same size as x.
+weighted_means_by_cat <- function(x, weights, categories) {
+  numer <- stats::ave(weights * x, categories, FUN = sum)
+  denom <- stats::ave(weights, categories, FUN = sum)
+  numer / denom
+}
+
+# Calculate the weighted variances by category, for all categories specified by
+# a given list of factors. Returns a vector of the same size as x.
+weighted_vars_by_cat <- function(x, weights, categories) {
+  x_mean <- weighted_means_by_cat(x, weights, categories)
+  x_var <- weights * (x - x_mean)^2 / sum(weights)
+}
