@@ -1,3 +1,5 @@
+# Module with functions that relate to the response model.
+
 # Build model for fiting survey data.
 build_model <- function(predictor, family) {
   list(predictor = predictor, family = family)
@@ -7,7 +9,8 @@ build_model <- function(predictor, family) {
 # relevant for indicator calculation (propensities, sigma and z).
 fit_model <- function(model, target, data, weights) {
   # Build model formula of form target ~ predictor.
-  formula <- build_formula(target, model$predictor)
+  target_formula <- stats::formula(paste(target, "~ ."))
+  formula <- stats::update(target_formula, model$predictor)
 
   # Determine desired model behaviour based on the model$family string.
   # Note that link_grad() is the derivative of the link function.
@@ -59,24 +62,4 @@ fit_model <- function(model, target, data, weights) {
     sigma = sigma,
     z = z
   )
-}
-
-# Build formula from given `target` string and `predictor` formula. The result
-# is a formula with target as left-hand side and predictor as right-hand side.
-build_formula <- function(target, predictor) {
-  target_formula <- stats::formula(paste(target, "~ ."))
-  formula <- stats::update(target_formula, predictor)
-
-  formula
-}
-
-# Check if `formula` has a non-empty left-hand side.
-has_lhs <- function(formula) {
-  length(formula) > 2
-}
-
-# Get variables used in right-hand side of `formula`.
-get_rhs_variables <- function(formula) {
-  rhs <- if(length(formula) > 2) formula[[3L]] else formula[[2L]]
-  all.vars(rhs)
 }

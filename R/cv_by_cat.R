@@ -46,7 +46,7 @@ cv_by_cat <- function(robj, target, variables) {
   sigma <- fit$sigma
   z <- fit$z
   bias_factor <- calc_bias_factor(prop, sigma, z, weights, design_var_func)
-  response_rate <- weighted_mean(fit$prop, weights)
+  response_rate <- calc_rr(fit$prop, weights)
 
   # Build data frame with coefficient of variation values for each category.
   result <- NULL

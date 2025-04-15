@@ -1,3 +1,5 @@
+# Module with functions for calculating weighted mean and variance.
+
 # Calculate the weighted mean.
 weighted_mean <- function(x, weights) {
   stats::weighted.mean(x, weights)

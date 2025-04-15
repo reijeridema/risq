@@ -1,8 +1,8 @@
-# This module contains shared input validation functions.
+# With with input validation functions.
 
 # Validate risq object.
 validate_risq_object <- function(robj) {
-  if (!is_risq(robj)) {
+  if (!inherits(robj, "risq")) {
     stop("`robj` must be a risq object")
   }
 }
@@ -13,7 +13,7 @@ validate_target <- function(robj, target) {
     stop("`target` must be a string")
   }
 
-  predictor_variables <- get_rhs_variables(robj$model$predictor)
+  predictor_variables <- all.vars(robj$model$predictor)
   is_target_in_predictor <- target %in% predictor_variables
   if (is_target_in_predictor) {
     stop("`target` variable must not be in risq predictor")

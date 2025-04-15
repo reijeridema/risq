@@ -35,26 +35,50 @@ risq <- function(
   strata = NULL
 ) {
   # Input validation: predictor.
-  validate_predictor(predictor)
+  if (!inherits(predictor, "formula")) {
+    stop("`predictor` must be an object of class formula")
+  }
+  if (length(predictor) > 2) {
+    stop("`predictor` left-hand side must be empty")
+  }
 
   # Input validation: family.
   family <- match.arg(family)
 
   # Input validation: data.
-  validate_data(data, predictor)
+  if (!is.data.frame(data)) {
+    stop("`data` must be a data frame")
+  }
+  predictor_variables <- all.vars(predictor)
+  if (!all(predictor_variables %in% colnames(data))) {
+    stop("`data` must contain all variables used in `predictor`")
+  }
   sample_cnt <- nrow(data)
 
   # Input validation: weights.
   if (is.null(weights)) {
     weights <- build_default_weights(sample_cnt)
   }
-  validate_weights(weights, sample_cnt)
+  if (!is.numeric(weights)) {
+    stop("`weights` must be a numeric vector")
+  }
+  if (length(weights) != sample_cnt) {
+    stop("`weights` length must match sample data")
+  }
+  if (any(weights < 1)) {
+    stop("`weights` must have value 1 or greater")
+  }
 
   # Input validation: strata.
   if (is.null(strata)) {
     strata <- build_default_strata(weights)
   }
-  validate_strata(strata, sample_cnt)
+  if (!is.factor(strata)) {
+    stop("`strata` must be a factor")
+  }
+  if (length(strata) != sample_cnt) {
+    stop("`strata` length must match sample data")
+  }
 
   # Build model and design.
   model <- build_model(predictor, family)
@@ -69,55 +93,4 @@ risq <- function(
   class(result) <- "risq"
 
   result
-}
-
-# Check if `x` is a `risq` object.
-is_risq <- function(x) {
-  inherits(x, "risq")
-}
-
-# Validate that predictor is a formula with empty left-hand side.
-validate_predictor <- function(predictor) {
-  if (!inherits(predictor, "formula")) {
-    stop("`predictor` must be an object of class formula")
-  }
-
-  if (has_lhs(predictor)) {
-    stop("`predictor` left-hand side must be empty")
-  }
-}
-
-# Validate that data is a data frame that contains all predictor variables.
-validate_data <- function(data, predictor) {
-  if (!is.data.frame(data)) {
-    stop("`data` must be a data frame")
-  }
-
-  predictor_variables <- get_rhs_variables(predictor)
-  if (!all(predictor_variables %in% colnames(data))) {
-    stop("`data` must contain all variables used in `predictor`")
-  }
-}
-
-# Validate that weights is a numeric vector of the expected length.
-validate_weights <- function(weights, expected_length) {
-  if (!is.numeric(weights)) {
-    stop("`weights` must be a numeric vector")
-  }
-  if (length(weights) != expected_length) {
-    stop("`weights` length must match sample data")
-  }
-  if (any(weights < 1)) {
-    stop("`weights` must have value 1 or greater")
-  }
-}
-
-# Validate that strate is a factor of the expected length.
-validate_strata <- function(strata, expected_length) {
-  if (!is.factor(strata)) {
-    stop("`strata` must be a factor")
-  }
-  if (length(strata) != expected_length) {
-    stop("`strata` length must match sample data")
-  }
 }

@@ -24,7 +24,7 @@ rr <- function(robj, target) {
   # Fit model and calculate response rate.
   weights <- robj$design$weights
   fit <- fit_model(robj$model, target, robj$data, weights)
-  response_rate <- weighted_mean(fit$prop, weights)
+  response_rate <- calc_rr(fit$prop, weights)
 
   response_rate
 }

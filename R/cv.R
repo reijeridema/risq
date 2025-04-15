@@ -38,23 +38,3 @@ cv <- function(robj, target) {
 
   list(cv = cv_val, cv_se = cv_se)
 }
-
-# Calculate estimate for coefficient of variation.
-calc_cv <- function(prop, weights, bias_factor) {
-  prop_mean <- weighted_mean(prop, weights)
-  prop_var <- weighted_var(prop, weights)
-	cv <- sqrt(prop_var * bias_factor) / prop_mean
-
-  cv
-}
-
-# Calculate standard error for coefficient of variation.
-calc_cv_se <- function(prop, sigma, z, weights, total_var_func, cv_val) {
-  n <- length(weights)
-  prop_mean <- weighted_mean(prop, weights)
-  ri_se <- calc_ri_se(prop, sigma, z, weights, total_var_func)
-  cv_var <- (0.5 * ri_se / prop_mean)^2 + cv_val^4 / n
-	cv_se <- sqrt(cv_var)
-
-  cv_se
-}

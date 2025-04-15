@@ -1,3 +1,5 @@
+# Module with functions that relate to the survey design.
+
 # Build default inclusion weights. All weights are equal to `1`.
 build_default_weights <- function(sample_cnt) {
   rep(1, sample_cnt)
