@@ -12,6 +12,7 @@ data_2 <- hlc[seq(1, nrow(hlc), 100), ]
 get_ref <- function(
   variables, formula, family, data, weights = NULL, strata = NULL
 ) {
+  # Build arguments for reference implementation.
   args <- list(
     formula = formula,
     sampleData = data,
@@ -31,8 +32,11 @@ get_ref <- function(
     args$otherVariables <- other_variables
   }
 
+  # Get values from reference implementation.
   ref <- do.call(what = getRIndicator, args = args)
   ref <- ref$partialCV$byVariables
+
+  # Build reference solution from relevant columns.
   ref <- data.frame(
     variable = ref$variable,
     cv_u = ref$CVu,
@@ -40,8 +44,15 @@ get_ref <- function(
     cv_c = ref$CVc,
     cv_se_c = ref$CVcSEApprox
   )
+
+  # Select relevent rows in correct order.
   ref <- ref[match(variables, ref$variable), ]
   row.names(ref) <- NULL
+
+  # Set unconditional values to 0 for variables outside model.
+  if (length(other_variables) > 0) {
+    ref[ref$variable %in% other_variables, c("cv_c", "cv_se_c")] <- 0
+  }
 
   ref
 }

@@ -13,6 +13,7 @@ data_2 <- hlc[seq(1, nrow(hlc), 100), ]
 get_ref <- function(
   variables, formula, family, data, weights = NULL, strata = NULL
 ) {
+  # Build arguments for reference implementation.
   args <- list(
     formula = formula,
     sampleData = data,
@@ -32,11 +33,13 @@ get_ref <- function(
     args$otherVariables <- other_variables
   }
 
+  # Get values from reference implementation.
   ref <- do.call(what = getRIndicator, args = args)
   ref <- ref$partialR$byCategories
 
   result <- NULL
   for (variable in variables) {
+    # Build reference solution from relevant columns.
     ref_single_var <- ref[[variable]]
     result_single_var <- data.frame(
       variable = factor(variable, levels = variables),
@@ -46,11 +49,20 @@ get_ref <- function(
       ri_c = ref_single_var$PcUnadj,
       ri_se_c = ref_single_var$PcUnadjSE
     )
+
+    # Ensure rows are in correct order.
     category_levels <- levels(data[[variable]])
     result_single_var <- result_single_var[
       match(category_levels, result_single_var$category), 
     ]
     row.names(result_single_var) <- NULL
+
+    # Set unconditional values to 0 if variable is outside model.
+    if (variable %in% other_variables) {
+      result_single_var$ri_c <- 0
+      result_single_var$ri_se_c <- 0
+    }
+
     result <- rbind(result, result_single_var)
   }
 

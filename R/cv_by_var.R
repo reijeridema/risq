@@ -53,22 +53,35 @@ cv_by_var <- function(robj, target, variables) {
     other_variables <- predictor_variables[predictor_variables != variable]
     other_categories <- as.list(data[other_variables])
 
+    # Calcuate unconditional values.
     ri_u <- calc_ri_by_var_unconditional(
       categories, fit$prop, weights, bias_factor
     )
     ri_se_u <- calc_ri_se_by_var_unconditional(
       variable, model$family, target, data, weights, design_var_func
     )
-    ri_c <- calc_ri_by_var_conditional(
-      other_categories, fit$prop, weights, bias_factor
-    )
 
+    # Calcuate conditional values.
+    is_variable_in_model = (variable %in% predictor_variables)
+    if (is_variable_in_model) {
+      ri_c <- calc_ri_by_var_conditional(
+        other_categories, fit$prop, weights, bias_factor
+      )
+      # Conditional standard error is approximated by the unconditional one.
+      ri_se_c <- ri_se_u
+    } else {
+      # Conditional values are 0 for variables outside the model.
+      ri_c <- 0
+      ri_se_c <- 0
+    }
+
+    # Combine results for the current variable.
     result_single_var <- data.frame(
       variable = variable,
       cv_u = ri_u / response_rate,
       cv_se_u = ri_se_u / response_rate,
       cv_c = ri_c / response_rate,
-      cv_se_c = ri_se_u / response_rate
+      cv_se_c = ri_se_c / response_rate
     )
     result <- rbind(result, result_single_var)
   }

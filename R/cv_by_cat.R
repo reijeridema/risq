@@ -52,38 +52,43 @@ cv_by_cat <- function(robj, target, variables) {
   result <- NULL
   for (variable in variables) {
     categories <- data[[variable]]
+    category_levels <- levels(categories)
+
     predictor_variables <- all.vars(model$predictor)
     other_variables <- predictor_variables[predictor_variables != variable]
     other_categories <- as.list(data[other_variables])
 
+    # Calculate conditional values.
     ri_u <- calc_ri_by_cat_unconditional(
       categories, prop, weights
     )
     ri_se_u <- calc_ri_se_by_cat_unconditional(
       categories, prop, weights, design_var_func
     )
-    ri_c <- calc_ri_by_cat_conditional(
-      categories, other_categories, prop, weights
-    )
-    ri_se_c <- calc_ri_se_by_cat_conditional(
-      categories, other_categories, prop, sigma, z, weights, design_var_func
-    )
 
-    # Ensure consistent ordering of rows.
-    category_levels <- levels(categories)
-    sorted_ri_u <- ri_u[match(category_levels, ri_u$category), ]
-    sorted_ri_se_u <- ri_se_u[match(category_levels, ri_se_u$category), ]
-    sorted_ri_c <- ri_c[match(category_levels, ri_c$category), ]
-    sorted_ri_se_c <- ri_se_c[match(category_levels, ri_se_c$category), ]
+    # Calculate unconditional values.
+    is_variable_in_model = (variable %in% predictor_variables)
+    if (is_variable_in_model) {
+      ri_c <- calc_ri_by_cat_conditional(
+        categories, other_categories, prop, weights
+      )
+      ri_se_c <- calc_ri_se_by_cat_conditional(
+        categories, other_categories, prop, sigma, z, weights, design_var_func
+      )
+    } else {
+      # Conditional values are 0 for variables outside the model.
+      ri_c <- data.frame(category = category_levels, val = 0)
+      ri_se_c <- data.frame(category = category_levels, val = 0)
+    }
 
     # Combine results for the current variable.
     result_single_var <- data.frame(
       variable = factor(variable, levels = variables),
       category = category_levels,
-      cv_u = sorted_ri_u$val / response_rate,
-      cv_se_u = sorted_ri_se_u$val / response_rate,
-      cv_c = sorted_ri_c$val / response_rate,
-      cv_se_c = sorted_ri_se_c$val / response_rate
+      cv_u = ri_u$val / response_rate,
+      cv_se_u = ri_se_u$val / response_rate,
+      cv_c = ri_c$val / response_rate,
+      cv_se_c = ri_se_c$val / response_rate
     )
 
     result <- rbind(result, result_single_var)

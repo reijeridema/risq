@@ -92,6 +92,7 @@ calc_ri_by_var_conditional <- function(
 }
 
 # Calculate estimate for the unconditional partial R-indicator.
+# Returns a dataframe with rows in the order of levels(categories).
 calc_ri_by_cat_unconditional <- function(categories, prop, weights) {
   wp <- data.frame(w = weights, wp = weights * prop)
   wp_by_cat <- stats::aggregate(wp, by = list(category = categories), FUN = sum)
@@ -102,10 +103,13 @@ calc_ri_by_cat_unconditional <- function(categories, prop, weights) {
   prop_var <- wp_by_cat$w * prop_deviation^2 / N
   ri <- sign(prop_deviation) * sqrt(prop_var)
 
-  data.frame(category = wp_by_cat$category, val = ri)
+  category_levels <- levels(categories)
+  value_order <- match(category_levels, wp_by_cat$category)
+  data.frame(category = category_levels, val = ri[value_order])
 }
 
 # Calculate standard error for the unconditional partial R-indicator.
+# Returns a dataframe with rows in the order of levels(categories).
 calc_ri_se_by_cat_unconditional <- function(
   categories, prop, weights, total_var_func
 ) {
@@ -129,6 +133,7 @@ calc_ri_se_by_cat_unconditional <- function(
 }
 
 # Calculate estimate for the conditional partial R-indicator.
+# Returns a dataframe with rows in the order of levels(categories).
 calc_ri_by_cat_conditional <- function(
   categories, other_categories, prop, weights
 ) {
@@ -137,10 +142,13 @@ calc_ri_by_cat_conditional <- function(
   pv_by_cat <- stats::aggregate(pv, by = list(category = categories), FUN = sum)
   ri <- sqrt(pv_by_cat$prop_var)
 
-  data.frame(category = pv_by_cat$category, val = ri)
+  category_levels <- levels(categories)
+  value_order <- match(category_levels, pv_by_cat$category)
+  data.frame(category = category_levels, val = ri[value_order])
 }
 
 # Calculate standard error for the conditional partial R-indicator.
+# Returns a dataframe with rows in the order of levels(categories).
 calc_ri_se_by_cat_conditional <- function(
   categories, other_categories, prop, sigma, z, weights, total_var_func
 ) {
