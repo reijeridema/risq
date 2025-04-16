@@ -4,7 +4,8 @@ data_1 <- data.frame(
   r = c(rep(FALSE, 5), rep(TRUE, 5)),
   s = c(rep(FALSE, 5), rep(TRUE, 5)),
   x = factor(rep(c("one", "two", "three"), length.out = 10)),
-  y = c(1, 2, 4, 2, 2, 7, 6, 7, 8, 0)
+  y = c(1, 2, 4, 2, 2, 7, 6, 7, 8, 0),
+  z = factor(c(1, 2, 4, 2, 2, 7, 6, 7, 8, 0))
 )
 
 data_2 <- hlc[seq(1, nrow(hlc), 100), ]
@@ -67,6 +68,16 @@ test_ri_vs_ref <- function(family) {
   ri_tst <- ri_by_var(robj, target, variables)
   ri_ref <- get_ref(variables, formula, family, data_1)
   expect_equal(ri_tst, ri_ref)
+
+  # Using data_1 with single model variable.
+  formula <- r ~ x
+  target <- as.character(formula[[2]])
+  predictor <- formula[c(1, 3)]
+  variables <- c("x", "z")
+  robj <- risq(predictor, family, data_1)
+  ri_tst <- ri_by_var(robj, target, variables)
+  # Reference solution cannot handle this case. Test NA pattern.
+  expect_equal(which(is.na(ri_tst)), c(7, 9))
 
   # Using data_2 with default weights and strata (SI).
   formula <- response ~ gender + age + job
@@ -134,7 +145,7 @@ test_that("ri_by_var detects invalid input", {
   robj <- risq(~ x + y, "gaussian", data_1)
   expect_error(ri_by_var(robj, "r", 0), "must be a character vector")
   expect_error(ri_by_var(robj, "r", c("x", "r")), "must not contain the target")
-  expect_error(ri_by_var(robj, "r", c("x", "z")), "must be present in risq data")
+  expect_error(ri_by_var(robj, "r", c("x", "q")), "must be present in risq data")
   expect_error(ri_by_var(robj, "r", c("x", "y")), "must be factors in risq data")
   expect_error(ri_by_var(robj, "r", c("s", "x")), "must be factors in risq data")
   expect_error(ri_by_var(robj, "r", c("x", "x")), "must not contain duplicates")

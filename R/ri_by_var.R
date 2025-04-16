@@ -23,6 +23,9 @@
 #' - `ri_se_c`: standard error for the conditional partial representativity
 #'  indicator for the variable.
 #'
+#'  The returned conditional values `ri_c` en `ri_se_c` are `NA` for a variable
+#'  if that variable is the only variable in the predictor of the model.
+#'
 #' @export
 #' @examples
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
@@ -62,16 +65,20 @@ ri_by_var <- function(robj, target, variables) {
 
     # Calcuate conditional values.
     is_variable_in_model = (variable %in% predictor_variables)
-    if (is_variable_in_model) {
+    if (!is_variable_in_model) {
+      # Conditional values are 0 for variables outside the model.
+      ri_c <- 0
+      ri_se_c <- 0
+    } else if (length(other_categories) == 0) {
+      # Conditional values require other model variables to condition on.
+      ri_c <- NA
+      ri_se_c <- NA
+    } else {
       ri_c <- calc_ri_by_var_conditional(
         other_categories, fit$prop, weights, bias_factor
       )
       # Conditional standard error is approximated by the unconditional one.
       ri_se_c <- ri_se_u
-    } else {
-      # Conditional values are 0 for variables outside the model.
-      ri_c <- 0
-      ri_se_c <- 0
     }
 
     # Combine results for the current variable.

@@ -80,6 +80,16 @@ test_ri_vs_ref <- function(family) {
   ri_ref <- get_ref(variables, formula, family, data_1)
   expect_equal(ri_tst, ri_ref)
 
+  # Using data_1 with single model variable.
+  formula <- r ~ x
+  target <- as.character(formula[[2]])
+  predictor <- formula[c(1, 3)]
+  variables <- c("x", "z")
+  robj <- risq(predictor, family, data_1)
+  ri_tst <- ri_by_cat(robj, target, variables)
+  # Reference solution cannot handle this case. Test NA pattern.
+  expect_equal(which(is.na(ri_tst)), c(21, 22, 23, 26, 27, 28))
+
   # Using data_2 with default weights and strata (SI).
   formula <- response ~ gender + age + job
   target <- as.character(formula[[2]])
