@@ -4,7 +4,7 @@
 calc_bias_factor <- function(prop, sigma, z, weights, total_var_func) {
   N <- sum(weights)
 
-  lambda_1_func <- function(zi) {t(zi) %*% sigma %*% zi}
+  lambda_1_func <- function(zi) {crossprod(zi, sigma) %*% zi}
   lambda_1 <- sum(apply(z * sqrt(weights), 1, lambda_1_func))
   lambda_2 <- total_var_func(prop) / N
   bias <- (lambda_1 - lambda_2) / N
@@ -42,7 +42,7 @@ calc_ri_se <- function(prop, sigma, z, weights, total_var_func) {
   C <- total_var_func((prop - prop_mean)^2)
 
   variance <- numeric()
-  variance[1] <- 4 * t(A) %*% sigma %*% A
+  variance[1] <- 4 * crossprod(A, sigma) %*% A
   variance[2] <- 2 * sum(diag(B %*% sigma %*% B %*% sigma))
   variance[3] <- C / sum(weights)^2
   variance <- sum(variance) / prop_var_ml
@@ -157,28 +157,30 @@ calc_ri_se_by_cat_conditional <- function(
 
   prop_mean_by_others <- weighted_means_by_cat(prop, weights, other_categories)
   prop_deviation <- prop - prop_mean_by_others
+  pp <- prop_deviation * prop_deviation
 
   calc_z_mean_by_others <- function(zi) {
     weighted_means_by_cat(zi, weights, other_categories)
   }
   z_mean_by_others <- apply(z, 2, calc_z_mean_by_others)
   z_deviation <- z - z_mean_by_others
+  zw <- z_deviation * weights
 
   N <- sum(weights)
   variance <- numeric(category_cnt)
   for (i in seq_len(category_cnt)) {
-    delta <- ifelse(categories == category_levels[i], 1, 0)
-    zdw <- z_deviation * delta * weights
-    ppd <- prop_deviation * prop_deviation * delta
+    is_cat <- (categories == category_levels[i])
+    zw_cat <- zw[is_cat, , drop = FALSE]  # Only the rows where is_cat is TRUE.
+    pp_cat <- pp * is_cat # Value pp where is_cat is TRUE, 0 elsewhere.
 
-    A <- matrix(prop_deviation, nrow = 1) %*% zdw
-    B <- t(z_deviation) %*% zdw
+    A <- crossprod(prop_deviation[is_cat], zw_cat)
+    B <- crossprod(z_deviation[is_cat, , drop = FALSE], zw_cat)
 
-    v1 <- 4 * A %*% sigma %*% t(A)
+    v1 <- 4 * A %*% tcrossprod(sigma, A)
     v2 <- 2 * sum(diag(B %*% sigma %*% B %*% sigma))
-    v3 <- total_var_func(ppd)
+    v3 <- total_var_func(pp_cat)
 
-    variance[i] <- 0.25 * (v1 + v2 + v3) / (N * sum(ppd * weights))
+    variance[i] <- 0.25 * (v1 + v2 + v3) / (N * sum(pp_cat * weights))
   }
   ri_se = sqrt(variance)
 
