@@ -9,7 +9,7 @@
 #' - `gender`: gender (`factor`),
 #' - `marital_status`: marital status (`factor`),
 #' - `household`: household type (`factor`),
-#' - `job`: employment status (`logical`),
+#' - `job`: employment status (`factor`),
 #' - `house_value`: house value category (`factor`),
 #' - `urbanisation`: degree of urbanisation (`factor`),
 #' - `response`: survey response status (`logical`).
