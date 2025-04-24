@@ -143,21 +143,33 @@ test_that("cv_by_cat detects invalid input", {
   # Test invalid risq object.
   robj <- risq(~ x + y, "binomial", data_1)
   class(robj) <- "risk"
-  expect_error(cv_by_cat(robj, "r", "x"), "must be a risq object")
+  expect_error(cv_by_cat(robj, "r", "x"), "`robj` must be a risq object")
 
   # Test invalid target argument.
   robj <- risq(~ x, "binomial", data_1)
-  expect_error(cv_by_cat(robj, factor("r"), "x"), "must be a string")
-  expect_error(cv_by_cat(robj, "x", "x"), "must not be in risq predictor")
-  expect_error(cv_by_cat(robj, "Q", "x"), "must be present in risq data")
-  expect_error(cv_by_cat(robj, "y", "x"), "must be logical in risq data")
+  expect_error(cv_by_cat(robj, factor("r"), "x"), "`target` must be a string")
+  expect_error(cv_by_cat(robj, "x", "x"), "`target` variable must not be in risq predictor")
+  expect_error(cv_by_cat(robj, "Q", "x"), "`target` variable must be present in risq data")
+  expect_error(cv_by_cat(robj, "y", "x"), "`target` variable must be logical in risq data")
+
+  # Test missing values in target.
+  data_missing_r <- data_1
+  data_missing_r$r[8] <- NA
+  robj <- risq(~ x + y, "gaussian", data_missing_r)
+  expect_error(cv_by_cat(robj, "r"), "`target` variable must not contain `NA` values")
 
   # Test invalid variables argument.
   robj <- risq(~ x + y, "binomial", data_1)
-  expect_error(cv_by_cat(robj, "r", 0), "must be a character vector")
-  expect_error(cv_by_cat(robj, "r", c("x", "r")), "must not contain the target")
-  expect_error(cv_by_cat(robj, "r", c("x", "Q")), "must be present in risq data")
-  expect_error(cv_by_cat(robj, "r", c("x", "y")), "must be factors in risq data")
-  expect_error(cv_by_cat(robj, "r", c("s", "x")), "must be factors in risq data")
-  expect_error(cv_by_var(robj, "r", c("x", "z", "z")), "must not contain duplicates")
+  expect_error(cv_by_cat(robj, "r", 0), "`variables` must be a character vector")
+  expect_error(cv_by_cat(robj, "r", c("x", "r")), "`variables` must not contain the target")
+  expect_error(cv_by_cat(robj, "r", c("x", "Q")), "`variables` must be present in risq data")
+  expect_error(cv_by_cat(robj, "r", c("x", "y")), "`variables` must be factors in risq data")
+  expect_error(cv_by_cat(robj, "r", c("s", "x")), "`variables` must be factors in risq data")
+  expect_error(cv_by_cat(robj, "r", c("x", "z", "z")), "`variables` must not contain duplicates")
+
+  # Test missing values in variables.
+  data_missing_z <- data_1
+  data_missing_z$z[10] <- NA
+  robj <- risq(~ x + y, "gaussian", data_missing_z)
+  expect_error(cv_by_cat(robj, "r", c("z", "x")), "`variables` must not contain `NA` values")
 })

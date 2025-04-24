@@ -82,12 +82,18 @@ test_that("rr detects invalid input", {
   # Test invalid risq object.
   robj <- risq(~ gender + age, "binomial", data_2)
   class(robj) <- NULL
-  expect_error(rr(robj, "response"), "must be a risq object")
+  expect_error(rr(robj, "response"), "`robj` must be a risq object")
 
   # Test invalid target argument.
   robj <- risq(~ gender + response, "binomial", data_2)
-  expect_error(rr(robj, 1), "must be a string")
-  expect_error(rr(robj, "response"), "must not be in risq predictor")
-  expect_error(rr(robj, "INVALID"), "must be present in risq data")
-  expect_error(rr(robj, "house_value"), "must be logical in risq data")
+  expect_error(rr(robj, 1), "`target` must be a string")
+  expect_error(rr(robj, "response"), "`target` variable must not be in risq predictor")
+  expect_error(rr(robj, "INVALID"), "`target` variable must be present in risq data")
+  expect_error(rr(robj, "house_value"), "`target` variable must be logical in risq data")
+
+  # Test missing values in target.
+  data_missing <- data_1
+  data_missing$r[3] <- NA
+  robj <- risq(~ x + y, "gaussian", data_missing)
+  expect_error(rr(robj, "r"), "`target` variable must not contain `NA` values")
 })

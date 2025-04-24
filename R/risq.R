@@ -53,6 +53,10 @@ risq <- function(
   if (!all(predictor_variables %in% colnames(data))) {
     stop("`data` must contain all variables used in `predictor`")
   }
+  if (any(is.na(data[predictor_variables]))) {
+    stop("`data` for `predictor` variables must not contain `NA` values")
+  }
+
   sample_cnt <- nrow(data)
 
   # Input validation: weights.
@@ -64,6 +68,9 @@ risq <- function(
   }
   if (length(weights) != sample_cnt) {
     stop("`weights` length must match sample data")
+  }
+  if (any(is.na(weights))) {
+    stop("`weights` must not contain `NA` values")
   }
   if (any(weights < 1)) {
     stop("`weights` must have value 1 or greater")
@@ -78,6 +85,9 @@ risq <- function(
   }
   if (length(strata) != sample_cnt) {
     stop("`strata` length must match sample data")
+  }
+  if (any(is.na(strata))) {
+    stop("`strata` must not contain `NA` values")
   }
 
   # Build model and design.

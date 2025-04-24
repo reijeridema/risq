@@ -28,6 +28,11 @@ validate_target <- function(robj, target) {
   if (!is_target_logical) {
     stop("`target` variable must be logical in risq data")
   }
+
+  is_target_complete <- !any(is.na(robj$data[[target]]))
+  if (!is_target_complete) {
+    stop("`target` variable must not contain `NA` values")
+  }
 }
 
 # Validate variables within the context of a valid risq object and target.
@@ -48,6 +53,11 @@ validate_variables <- function(robj, target, variables) {
   is_factor <- sapply(robj$data[variables], is.factor)
   if (!all(is_factor)) {
     stop("`variables` must be factors in risq data")
+  }
+
+  is_complete <- !any(is.na(robj$data[variables]))
+  if (!is_complete) {
+    stop("`variables` must not contain `NA` values in risq data")
   }
 
   has_duplicates <- any(duplicated(variables))
