@@ -117,6 +117,21 @@ test_that("risq detects invalid input", {
   expect_error(risq(predictor, data = data, strata = factor(c(1:9, NA))), "must not contain `NA`")
 })
 
+test_that("risq handles empty levels in strata", {
+  predictor <- ~ x + y
+  data = risq_test_data
+  weights <- rep(2, 10)
+  strata1 <- factor(rep(1, 10))
+  strata2 <- strata1
+  levels(strata2) <- c(levels(strata2), 100)
+
+  expect_warning(
+    result <- risq(predictor, data = data, weights = weights, strata = strata2),
+    "empty levels"
+  )
+  expect_equal(result$design$strata, strata1)
+})
+
 test_that("risq works with hlc data", {
   predictor <- ~ gender + age + job
   expect_no_error(risq(predictor = predictor, data = hlc))

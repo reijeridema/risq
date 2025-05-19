@@ -89,6 +89,11 @@ risq <- function(
   if (any(is.na(strata))) {
     stop("`strata` must not contain `NA` values")
   }
+  strata_no_empty <- droplevels(strata)
+  if (nlevels(strata_no_empty) != nlevels(strata)) {
+    strata <- strata_no_empty
+    warning("removed empty levels from `strata`")
+  }
 
   # Build model and design.
   model <- build_model(predictor, family)

@@ -173,3 +173,16 @@ test_that("cv_by_cat detects invalid input", {
   robj <- risq(~ x + y, "gaussian", data_missing_z)
   expect_error(cv_by_cat(robj, "r", c("z", "x")), "`variables` must not contain `NA` values")
 })
+
+test_that("cv_by_cat handles variables with empty levels", {
+  # Build data with empty levels in variable x.
+  data_2 <- data_1
+  levels(data_2$x) <- c(levels(data_2$x), "four", "five")
+
+  # Compare results with and without empty levels.
+  robj_1 <- risq(~ x + y, "binomial", data_1)
+  result_1 <- cv_by_cat(robj_1, "r", c("z", "x"))
+  robj_2 <- risq(~ x + y, "binomial", data_2)
+  result_2 <- cv_by_cat(robj_2, "r", c("z", "x"))
+  expect_equal(result_1, result_2)
+})

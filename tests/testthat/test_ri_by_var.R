@@ -162,3 +162,16 @@ test_that("ri_by_var detects invalid input", {
   robj <- risq(~ x + y, "binomial", data_missing_z)
   expect_error(ri_by_var(robj, "r", c("x", "z")), "`variables` must not contain `NA` values")
 })
+
+test_that("ri_by_var handles variables with empty levels", {
+  # Build data with empty levels in variable x.
+  data_2 <- data_1
+  levels(data_2$x) <- c(levels(data_2$x), "four", "five")
+
+  # Compare results with and without empty levels.
+  robj_1 <- risq(~ x + y, "binomial", data_1)
+  result_1 <- ri_by_var(robj_1, "r", c("x", "z"))
+  robj_2 <- risq(~ x + y, "binomial", data_2)
+  result_2 <- ri_by_var(robj_2, "r", c("x", "z"))
+  expect_equal(result_1, result_2)
+})
