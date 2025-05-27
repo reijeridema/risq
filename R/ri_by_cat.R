@@ -53,7 +53,8 @@ ri_by_cat <- function(robj, target, variables) {
   # Build data frame with representativity indicator values for each category.
   result <- NULL
   for (variable in variables) {
-    categories <- data[[variable]]
+    # Only non-empty categories are relevant.
+    categories <- droplevels(data[[variable]])
     category_levels <- levels(categories)
 
     predictor_variables <- all.vars(model$predictor)

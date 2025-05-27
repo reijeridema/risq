@@ -1,7 +1,7 @@
 risq_test_data <- data.frame(
   x = factor(rep(c("a", "b", "c"), length.out = 10)),
   y = 1:10,
-  z = rep(0, 10)
+  z = c(rep(0, 9), NA)
 )
 
 test_that("risq returns expected object", {
@@ -101,17 +101,35 @@ test_that("risq detects invalid input", {
   expect_error(risq(~ b + c, data = 1), "must be a data frame")
   expect_error(risq(~ b + y, data = data), "must contain all variables")
   expect_error(risq(~ x + c, data = data), "must contain all variables")
+  expect_error(risq(~ x + z, data = data), "must not contain `NA`")
 
   # Weights
   expect_error(risq(predictor, data = data, weights = TRUE), "must be a numeric vector")
   expect_error(risq(predictor, data = data, weights = 1:9), "length must match")
   expect_error(risq(predictor, data = data, weights = 1:11), "length must match")
   expect_error(risq(predictor, data = data, weights = c(1:8, 0.9, 1)), "value 1 or greater")
+  expect_error(risq(predictor, data = data, weights = c(NA, 2:10)), "must not contain `NA`")
 
   # Strata
   expect_error(risq(predictor, data = data, strata = 1:10), "must be a factor")
   expect_error(risq(predictor, data = data, strata = factor(1:9)), "length must match")
   expect_error(risq(predictor, data = data, strata = factor(1:11)), "length must match")
+  expect_error(risq(predictor, data = data, strata = factor(c(1:9, NA))), "must not contain `NA`")
+})
+
+test_that("risq handles empty levels in strata", {
+  predictor <- ~ x + y
+  data = risq_test_data
+  weights <- rep(2, 10)
+  strata1 <- factor(rep(1, 10))
+  strata2 <- strata1
+  levels(strata2) <- c(levels(strata2), 100)
+
+  expect_warning(
+    result <- risq(predictor, data = data, weights = weights, strata = strata2),
+    "empty levels"
+  )
+  expect_equal(result$design$strata, strata1)
 })
 
 test_that("risq works with hlc data", {

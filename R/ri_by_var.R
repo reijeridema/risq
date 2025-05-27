@@ -50,7 +50,8 @@ ri_by_var <- function(robj, target, variables) {
   # Build data frame with representativity indicator values for each variable.
   result <- NULL
   for (variable in variables) {
-    categories <- data[[variable]]
+    # Only non-empty categories are relevant.
+    categories <- droplevels(data[[variable]])
     predictor_variables <- all.vars(model$predictor)
     other_variables <- predictor_variables[predictor_variables != variable]
     other_categories <- as.list(data[other_variables])
