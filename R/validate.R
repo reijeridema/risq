@@ -1,4 +1,4 @@
-# With with input validation functions.
+# Module with shared input validation functions.
 
 # Validate risq object.
 validate_risq_object <- function(robj) {

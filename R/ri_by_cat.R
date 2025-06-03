@@ -1,7 +1,7 @@
 #' Representativity Indicator by Category
 #'
 #' @description
-#' Calculate unconditional and conditional partial representativity indicator
+#' Estimate unconditional and conditional partial representativity indicator
 #' values by category for a selection of variables, given a `risq` object and
 #' target variable.
 #'
@@ -9,8 +9,9 @@
 #' @param target Name of the target variable. Must be the name of a `logical`
 #'  variable in the `data` component of the `risq` object.
 #' @param variables A `character` vector that specifies the variables for which
-#'  to calculate partial representativity indicator values. Must be the names of
-#'  categorical variables in the `data` component of the `risq` object.
+#'  to estimate partial representativity indicator values. Must be the names of
+#'  categorical variables in the `data` component of the `risq` object. May
+#'  include names of variables that are not part of the model.
 #'
 #' @return
 #' A `data.frame` with columns
