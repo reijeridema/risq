@@ -67,7 +67,7 @@ risq <- function(
     stop("`weights` must be a numeric vector")
   }
   if (length(weights) != sample_cnt) {
-    stop("`weights` length must match sample data")
+    stop("`weights` length must match `data`")
   }
   if (any(is.na(weights))) {
     stop("`weights` must not contain `NA` values")
@@ -84,7 +84,7 @@ risq <- function(
     stop("`strata` must be a factor")
   }
   if (length(strata) != sample_cnt) {
-    stop("`strata` length must match sample data")
+    stop("`strata` length must match `data`")
   }
   if (any(is.na(strata))) {
     stop("`strata` must not contain `NA` values")
@@ -108,4 +108,24 @@ risq <- function(
   class(result) <- "risq"
 
   result
+}
+
+#' @export
+print.risq <- function(robj, ...) {
+  cat("model:")
+  cat(paste0("\n  predictor: ", deparse(robj$model$predictor)))
+  cat(paste0("\n  family: ", robj$model$family))
+  cat("\ndata:")
+  cat(paste0("\n  samples: ", nrow(robj$data)))
+  cat(paste0("\n  variables: ", ncol(robj$data)))
+  cat("\ndesign:")
+  cat("\n  weights:")
+  cat(paste0("\n    values: ", length(robj$design$weights)))
+  cat(paste0("\n    unique values: ", length(unique(robj$design$weights))))
+  cat("\n  strata:")
+  cat(paste0("\n    values: ", length(robj$design$strata)))
+  cat(paste0("\n    levels: ", length(levels(robj$design$strata))))
+  cat(paste0("\n  type: ", robj$design$type))
+  cat("\n")
+  invisible(robj)
 }

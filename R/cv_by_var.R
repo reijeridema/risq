@@ -1,15 +1,16 @@
 #' Coefficient of Variation by Variable
 #'
 #' @description
-#' Calculate bias-adjusted partial coefficient of variation values by variable
+#' Estimate bias-adjusted partial coefficient of variation values by variable
 #' for a selection of variables, given a `risq` object and target variable.
 #'
 #' @param robj `risq` object (see [`risq`][risq]).
 #' @param target Name of the target variable. Must be the name of a `logical`
 #'  variable in the `data` component of the `risq` object.
 #' @param variables A `character` vector that specifies the variables for which
-#'  to calculate partial coefficient of variation values. Must be the names of
-#'  categorical variables in the `data` component of the `risq` object.
+#'  to estimate partial coefficient of variation values. Must be the names of
+#'  categorical variables in the `data` component of the `risq` object. May
+#'  include names of variables that are not part of the model.
 #'
 #' @return
 #' A `data.frame` with columns

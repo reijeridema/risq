@@ -1,7 +1,7 @@
 #' Representativity Indicator
 #'
 #' @description
-#' Calculate the bias-adjusted representativity indicator for a target variable,
+#' Estimate the bias-adjusted representativity indicator for a target variable,
 #' within the context of the given `risq` object.
 #'
 #' @param robj `risq` object (see [`risq`][risq]).

@@ -1,7 +1,7 @@
 #' Coefficient of Variation
 #'
 #' @description
-#' Calculate the bias-adjusted coefficient of variation for a target variable,
+#' Estimate the bias-adjusted coefficient of variation for a target variable,
 #' within the context of the given `risq` object.
 #'
 #' @param robj `risq` object (see [`risq`][risq]).

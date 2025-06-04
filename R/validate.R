@@ -1,4 +1,4 @@
-# With with input validation functions.
+# Module with shared input validation functions.
 
 # Validate risq object.
 validate_risq_object <- function(robj) {
@@ -16,22 +16,22 @@ validate_target <- function(robj, target) {
   predictor_variables <- all.vars(robj$model$predictor)
   is_target_in_predictor <- target %in% predictor_variables
   if (is_target_in_predictor) {
-    stop("`target` variable must not be in risq predictor")
+    stop("`target` must not be in risq predictor")
   }
 
   is_target_in_data <- target %in% names(robj$data)
   if (!is_target_in_data) {
-    stop("`target` variable must be present in risq data")
+    stop("`target` must be present in risq data")
   }
 
   is_target_logical <- is.logical(robj$data[[target]])
   if (!is_target_logical) {
-    stop("`target` variable must be logical in risq data")
+    stop("`target` must be of type logical in risq data")
   }
 
   is_target_complete <- !any(is.na(robj$data[[target]]))
   if (!is_target_complete) {
-    stop("`target` variable must not contain `NA` values")
+    stop("`target` must not contain `NA` values in risq data")
   }
 }
 
@@ -42,7 +42,7 @@ validate_variables <- function(robj, target, variables) {
   }
 
   if (target %in% variables) {
-    stop("`variables` must not contain the target variable")
+    stop("`variables` must not contain target variable")
   }
 
   is_in_data <- variables %in% names(robj$data)
@@ -52,7 +52,7 @@ validate_variables <- function(robj, target, variables) {
 
   is_factor <- sapply(robj$data[variables], is.factor)
   if (!all(is_factor)) {
-    stop("`variables` must be factors in risq data")
+    stop("`variables` must be of type factor in risq data")
   }
 
   is_complete <- !any(is.na(robj$data[variables]))

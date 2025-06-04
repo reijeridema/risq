@@ -1,15 +1,16 @@
 #' Representativity Indicator by Variable
 #'
 #' @description
-#' Calculate bias-adjusted partial representativity indicator values by variable
+#' Estimate bias-adjusted partial representativity indicator values by variable
 #' for a selection of variables, given a `risq` object and target variable.
 #'
 #' @param robj `risq` object (see [`risq`][risq]).
 #' @param target Name of the target variable. Must be the name of a `logical`
 #'  variable in the `data` component of the `risq` object.
 #' @param variables A `character` vector that specifies the variables for which
-#'  to calculate partial representativity indicator values. Must be the names of
-#'  categorical variables in the `data` component of the `risq` object.
+#'  to estimate partial representativity indicator values. Must be the names of
+#'  categorical variables in the `data` component of the `risq` object. May
+#'  include names of variables that are not part of the model.
 #'
 #' @return
 #' A `data.frame` with columns
