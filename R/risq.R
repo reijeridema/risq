@@ -67,7 +67,7 @@ risq <- function(
     stop("`weights` must be a numeric vector")
   }
   if (length(weights) != sample_cnt) {
-    stop("`weights` length must match sample data")
+    stop("`weights` length must match `data`")
   }
   if (any(is.na(weights))) {
     stop("`weights` must not contain `NA` values")
@@ -84,7 +84,7 @@ risq <- function(
     stop("`strata` must be a factor")
   }
   if (length(strata) != sample_cnt) {
-    stop("`strata` length must match sample data")
+    stop("`strata` length must match `data`")
   }
   if (any(is.na(strata))) {
     stop("`strata` must not contain `NA` values")

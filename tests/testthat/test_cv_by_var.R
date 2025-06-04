@@ -137,30 +137,30 @@ test_that("cv_by_var detects invalid input", {
   # Test invalid target argument.
   robj <- risq(~ x, "gaussian", data_1)
   expect_error(cv_by_var(robj, c("r", "s"), "x"), "`target` must be a string")
-  expect_error(cv_by_var(robj, "x", "x"), "`target` variable must not be in risq predictor")
-  expect_error(cv_by_var(robj, "X", "x"), "`target` variable must be present in risq data")
-  expect_error(cv_by_var(robj, "y", "x"), "`target` variable must be logical in risq data")
+  expect_error(cv_by_var(robj, "x", "x"), "`target` must not be in risq predictor")
+  expect_error(cv_by_var(robj, "X", "x"), "`target` must be present in risq data")
+  expect_error(cv_by_var(robj, "y", "x"), "`target` must be of type logical in risq data")
 
   # Test missing values in target.
   data_missing_r <- data_1
   data_missing_r$r[9] <- NA
   robj <- risq(~ x + y, "binomial", data_missing_r)
-  expect_error(cv_by_var(robj, "r"), "`target` variable must not contain `NA` values")
+  expect_error(cv_by_var(robj, "r"), "`target` must not contain `NA` values in risq data")
 
   # Test invalid variables argument.
   robj <- risq(~ x + y, "gaussian", data_1)
   expect_error(cv_by_var(robj, "r", 0), "`variables` must be a character vector")
-  expect_error(cv_by_var(robj, "r", c("x", "r")), "`variables` must not contain the target")
+  expect_error(cv_by_var(robj, "r", c("x", "r")), "`variables` must not contain target variable")
   expect_error(cv_by_var(robj, "r", c("x", "q")), "`variables` must be present in risq data")
-  expect_error(cv_by_var(robj, "r", c("x", "y")), "`variables` must be factors in risq data")
-  expect_error(cv_by_var(robj, "r", c("s", "x")), "`variables` must be factors in risq data")
+  expect_error(cv_by_var(robj, "r", c("x", "y")), "`variables` must be of type factor in risq data")
+  expect_error(cv_by_var(robj, "r", c("s", "x")), "`variables` must be of type factor in risq data")
   expect_error(cv_by_var(robj, "r", c("x", "x")), "`variables` must not contain duplicates")
 
   # Test missing values in variables.
   data_missing_z <- data_1
   data_missing_z$z[2] <- NA
   robj <- risq(~ x + y, "binomial", data_missing_z)
-  expect_error(cv_by_var(robj, "r", c("x", "z")), "`variables` must not contain `NA` values")
+  expect_error(cv_by_var(robj, "r", c("x", "z")), "`variables` must not contain `NA` values in risq data")
 })
 
 test_that("cv_by_var handles variables with empty levels", {
