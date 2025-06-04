@@ -109,3 +109,23 @@ risq <- function(
 
   result
 }
+
+#' @export
+print.risq <- function(robj, ...) {
+  cat("model:")
+  cat(paste0("\n  predictor: ", deparse(robj$model$predictor)))
+  cat(paste0("\n  family: ", robj$model$family))
+  cat("\ndata:")
+  cat(paste0("\n  samples: ", nrow(robj$data)))
+  cat(paste0("\n  variables: ", ncol(robj$data)))
+  cat("\ndesign:")
+  cat("\n  weights:")
+  cat(paste0("\n    values: ", length(robj$design$weights)))
+  cat(paste0("\n    unique values: ", length(unique(robj$design$weights))))
+  cat("\n  strata:")
+  cat(paste0("\n    values: ", length(robj$design$strata)))
+  cat(paste0("\n    levels: ", length(levels(robj$design$strata))))
+  cat(paste0("\n  type: ", robj$design$type))
+  cat("\n")
+  invisible(robj)
+}
