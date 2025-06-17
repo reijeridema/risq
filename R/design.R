@@ -22,28 +22,31 @@ build_default_strata <- function(weights, max_strata_cnt = 20) {
 }
 
 # Build design object. Consists of the weights and strata, as well as a type.
-# The type of the sample design is determined using as follows:
+# The type can be set "SI", "STSI" or "PPS", or it can be omitted.
+# If omitted, the type of the sample design is determined using as follows:
 # - A single stratum and constant weights implies SI sampling.
 # - Multiple strata and constant weights per stratum implies STSI sampling.
 # - Non-constant weights per stratum implies PPS sampling.
-build_design <- function(weights, strata) {
-  # Determine if weights are constant based on range of weights per stratum.
-  weight_range <- sapply(split(weights, strata), range)
-  has_constant_weights <- all(weight_range[1,] == weight_range[2,])
+build_design <- function(weights, strata, type = NULL) {
+  if (is.null(type)) {
+    # Determine if weights are constant based on range of weights per stratum.
+    weight_range <- sapply(split(weights, strata), range)
+    has_constant_weights <- all(weight_range[1,] == weight_range[2,])
 
-  # Determine type of sampling design.
-  if (has_constant_weights) {
-    strata_cnt <- length(levels(strata))
-    type <- if (strata_cnt == 1) "SI" else "STSI"
-  } else {
-    type <- "PPS"
+    # Determine type of sampling design.
+    if (has_constant_weights) {
+      strata_cnt <- length(levels(strata))
+      type <- if (strata_cnt == 1) "SI" else "STSI"
+    } else {
+      type <- "PPS"
+    }
   }
 
   # Return design object.
   list(
-    type = type,
     weights = weights,
-    strata = strata
+    strata = strata,
+    type = type
   )
 }
 
