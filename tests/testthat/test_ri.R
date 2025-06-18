@@ -23,7 +23,7 @@ get_ref <- function(formula, family, data, weights = NULL, strata = NULL) {
     args$sampleStrata <- strata
   }
   ref <- do.call(what = getRIndicator, args = args)
-  list(ri = ref$R, ri_se = ref$RSE)
+  list(value = ref$R, se = ref$RSE)
 }
 
 test_ri_vs_ref <- function(family) {
@@ -32,9 +32,11 @@ test_ri_vs_ref <- function(family) {
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   robj <- risq(predictor, family, data_1)
-  ri_tst <- ri(robj, target)
   ri_ref <- get_ref(formula, family, data_1)
+  ri_tst <- ri(robj, target)
   expect_equal(ri_tst, ri_ref)
+  ri_tst_no_se <- ri(robj, target, include_se = FALSE)
+  expect_equal(ri_tst_no_se, list(value = ri_tst$value))
 
   # Using data_2 with default weights and strata (SI).
   formula <- response ~ gender + age + urbanisation
@@ -42,9 +44,11 @@ test_ri_vs_ref <- function(family) {
   predictor <- formula[c(1, 3)]
   robj <- risq(predictor, family, data_2)
   expect_equal(robj$design$type, "SI")
-  ri_tst <- ri(robj, target)
   ri_ref <- get_ref(formula, family, data_2)
+  ri_tst <- ri(robj, target)
   expect_equal(ri_tst, ri_ref)
+  ri_tst_no_se <- ri(robj, target, include_se = FALSE)
+  expect_equal(ri_tst_no_se, list(value = ri_tst$value))
 
   # Using data_2 with custom weights and default strata (STSI).
   formula <- response ~ gender + age
@@ -53,9 +57,11 @@ test_ri_vs_ref <- function(family) {
   weights <- rep(1:5, length.out = nrow(data_2))
   robj <- risq(predictor, family, data_2, weights)
   expect_equal(robj$design$type, "STSI")
-  ri_tst <- ri(robj, target)
   ri_ref <- suppressWarnings(get_ref(formula, family, data_2, weights))
+  ri_tst <- ri(robj, target)
   expect_equal(ri_tst, ri_ref)
+  ri_tst_no_se <- ri(robj, target, include_se = FALSE)
+  expect_equal(ri_tst_no_se, list(value = ri_tst$value))
 
   # Using data_2 with custom weights and custom strata (PPS).
   formula <- response ~ gender + age
@@ -65,9 +71,11 @@ test_ri_vs_ref <- function(family) {
   strata <- factor(rep(1:3, length.out = nrow(data_2)))
   robj <- risq(predictor, family, data_2, weights, strata)
   expect_equal(robj$design$type, "PPS")
-  ri_tst <- ri(robj, target)
   ri_ref <- suppressWarnings(get_ref(formula, family, data_2, weights, strata))
+  ri_tst <- ri(robj, target)
   expect_equal(ri_tst, ri_ref)
+  ri_tst_no_se <- ri(robj, target, include_se = FALSE)
+  expect_equal(ri_tst_no_se, list(value = ri_tst$value))
 }
 
 test_that("ri values equal reference solution (binomial)", {
@@ -82,7 +90,7 @@ test_that("ri detects invalid input", {
   # Test invalid risq object.
   robj <- risq(~ gender + age, "binomial", data_2)
   class(robj) <- "brisq"
-  expect_error(ri(robj, "response"), "`robj` must be a risq object")
+  expect_error(ri(robj, "response"), "`x` must be a risq object")
 
   # Test invalid target argument.
   robj <- risq(~ gender + job, "binomial", data_2)
@@ -96,4 +104,9 @@ test_that("ri detects invalid input", {
   data_missing$r[1] <- NA
   robj <- risq(~ x + y, "binomial", data_missing)
   expect_error(ri(robj, "r"), "`target` must not contain `NA` values in risq data")
+
+  # Test invalid include_se argument.
+  robj <- risq(~ gender + job, "binomial", data_2)
+  expect_error(ri(robj, "response", include_se = 0), "`include_se` must be TRUE or FALSE")
+  expect_error(ri(robj, "response", include_se = c(TRUE, TRUE)), "`include_se` must be TRUE or FALSE")
 })
