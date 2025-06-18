@@ -61,15 +61,11 @@ calc_design_total_var <- function(x, design) {
 
 # Calculate the total weighted variance for design type SI or STSI.
 calc_total_var_stsi <- function(x, weights, strata) {
-  calc_stratum_var <- function(sample) {
-    n <- nrow(sample)
-    N <- sum(sample$weights)
-    stratum_var <- N^2 * (1 - n / N) * stats::var(sample$x) / n
-  }
-
-  sample <- data.frame(x = x, weights = weights)
-  strata_var <- sapply(split(sample, strata), calc_stratum_var)
-  total_var <- sum(strata_var)
+  ones <- rep(1, length(strata))
+  n <- sapply(split(ones, strata), sum)
+  N <- sapply(split(weights, strata), sum)
+  v <- sapply(split(x, strata), stats::var)
+  total_var <- sum(N^2 * (1 - n / N) * v / n)
 
   total_var
 }
