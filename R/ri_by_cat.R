@@ -49,7 +49,6 @@ ri_by_cat <- function(robj, target, variables) {
   prop <- fit$prop
   sigma <- fit$sigma
   z <- fit$z
-  bias_factor <- calc_bias_factor(prop, sigma, z, weights, design_var_func)
 
   # Build data frame with representativity indicator values for each category.
   result <- NULL
