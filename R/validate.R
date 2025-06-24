@@ -77,3 +77,17 @@ validate_logical <- function(x, arg_name = deparse(substitute(x))) {
     stop(paste0("`", arg_name, "` must be TRUE or FALSE"))
   }
 }
+
+# Validate integer value.
+validate_integer <- function(x, arg_name = deparse(substitute(x))) {
+  if (!is.numeric(x) || length(x) != 1 || floor(x) != x) {
+    stop(paste0("`", arg_name, "` must be an integer"))
+  }
+}
+
+# Validate positive integer value.
+validate_positive_integer <- function(x, arg_name = deparse(substitute(x))) {
+  if (!is.numeric(x) || length(x) != 1 || floor(x) != x || x <= 0) {
+    stop(paste0("`", arg_name, "` must be a positive integer"))
+  }
+}

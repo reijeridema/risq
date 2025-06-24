@@ -187,9 +187,7 @@ sample.default <- function(x, ...) {
 #'
 #' @export
 sample.risq <- function(x, size = nrow(x$data), ...) {
-  if (!is.numeric(size) || floor(size) != size || size < 1) {
-    stop("`size` must be a positive integer")
-  }
+  validate_positive_integer(size)
 
   # Draw random sample from row indices.
   n <- nrow(x$data)
