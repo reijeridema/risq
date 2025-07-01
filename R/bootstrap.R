@@ -223,6 +223,63 @@ quantile.bootstrap <- function(x, ...) {
   result
 }
 
+#' Bootstrap Subtraction
+#'
+#' @description
+#' Calculate the difference between two [`bootstrap`][bootstrap()] objects.
+#' This can be used to measure the progression between two target variables.
+#'
+#' @param x A `bootstrap` object.
+#' @param y A `bootstrap` object.
+#'
+#' @return
+#' A `bootstrap` object with the difference between `x` and `y`.
+#'
+#' @details
+#' For the result to be meaningful, the `bootstrap` objects `x` and `y` must
+#' have been made with the same input arguments for the [bootstrap()] function,
+#' except for the target variable.
+#'
+#' @family bootstrap methods
+#'
+#' @examples
+#' # Prepare data with multiple response columns
+#' data <- hlc[c("age", "gender")]
+#' data$resp1 <- hlc$response
+#' no_resp <- which(!hlc$response)
+#' resp2 <- hlc$response
+#' resp2[no_resp[seq(1, length(no_resp), 2)]] <- TRUE
+#' data$resp2 <- resp2
+#'
+#' # Note: a low iteration count is used to limit computing time of example.
+#' risq_hlc <- risq(predictor = ~ age +gender, data = data)
+#' bs1 <- bootstrap(risq_hlc, ri, target = "resp1", seed = 0, iterations = 5)
+#' bs2 <- bootstrap(risq_hlc, ri, target = "resp2", seed = 0, iterations = 5)
+#' mean(bs2 - bs1)
+#'
+#' @export
+`-.bootstrap` <- function(x, y) {
+
+  if (missing(y)) {
+    stop("Negation not supported for bootstrap objects")
+  }
+  if (!inherits(y, "bootstrap")) {
+    stop("Arguments must be bootstrap objects")
+  }
+  if (is.null(x$seed) || is.null(y$seed) || x$seed != y$seed) {
+    stop("Arguments must have the same non-NULL seed")
+  }
+  if (!identical(x$values_df, y$values_df)) {
+    stop("Arguments must have the same data rows")
+  }
+  if (ncol(x$values) != ncol(y$values)) {
+    stop("Arguments must have the same number of iterations")
+  }
+
+  values <- x$values - y$values
+  build_bootstrap(x$seed, x$values_df, values)
+}
+
 # Build a bootstrap object. For internal use only. Arguments are assumed valid.
 build_bootstrap <- function(seed, values_df, values) {
   structure(
