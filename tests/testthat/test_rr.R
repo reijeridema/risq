@@ -8,6 +8,7 @@ data_1 <- data.frame(
 
 data_2 <- hlc[seq(1, nrow(hlc), 10), ]
 
+# Get reference value from RISQ 2.1.
 get_ref <- function(formula, family, data, weights = NULL, strata = NULL) {
   args <- list(
     formula = formula,
@@ -26,6 +27,7 @@ get_ref <- function(formula, family, data, weights = NULL, strata = NULL) {
   ref$propMean
 }
 
+# Test rr() versus reference for the given family.
 test_rr_vs_ref <- function(family) {
   # Using data_1.
   formula <- r ~ x + y
@@ -82,7 +84,7 @@ test_that("rr detects invalid input", {
   # Test invalid risq object.
   robj <- risq(~ gender + age, "binomial", data_2)
   class(robj) <- NULL
-  expect_error(rr(robj, "response"), "`robj` must be a risq object")
+  expect_error(rr(robj, "response"), "`x` must be a risq object")
 
   # Test invalid target argument.
   robj <- risq(~ gender + response, "binomial", data_2)

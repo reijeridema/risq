@@ -14,7 +14,7 @@ test_that("risq returns expected object", {
   expected_model_binomial <- list(predictor = predictor, family = "binomial")
   expected_model_gaussian <- list(predictor = predictor, family = "gaussian")
   expected_data <- data
-  expected_design <- list(type = "SI", weights = weights, strata = strata)
+  expected_design <- list(weights = weights, strata = strata, type = "SI")
 
   result <- risq(predictor, "binomial", data, weights, strata)
   expect_equal(class(result), expected_class)

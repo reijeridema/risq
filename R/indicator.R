@@ -92,7 +92,7 @@ calc_ri_by_var_conditional <- function(
 }
 
 # Calculate estimate for the unconditional partial R-indicator.
-# Returns a dataframe with rows in the order of levels(categories).
+# Returns a vector with values that matches the order of levels(categories).
 calc_ri_by_cat_unconditional <- function(categories, prop, weights) {
   wp <- data.frame(w = weights, wp = weights * prop)
   wp_by_cat <- stats::aggregate(wp, by = list(category = categories), FUN = sum)
@@ -105,11 +105,11 @@ calc_ri_by_cat_unconditional <- function(categories, prop, weights) {
 
   category_levels <- levels(categories)
   value_order <- match(category_levels, wp_by_cat$category)
-  data.frame(category = category_levels, val = ri[value_order])
+  ri[value_order]
 }
 
 # Calculate standard error for the unconditional partial R-indicator.
-# Returns a dataframe with rows in the order of levels(categories).
+# Returns a vector with values that matches the order of levels(categories).
 calc_ri_se_by_cat_unconditional <- function(
   categories, prop, weights, total_var_func
 ) {
@@ -129,11 +129,11 @@ calc_ri_se_by_cat_unconditional <- function(
   N <- sum(weights)
   ri_se <- sqrt(n / N * (v1 * (1 / n - 1 / N)^2 + v2 * (1 / N)^2))
 
-  data.frame(category = category_levels, val = ri_se)
+  ri_se
 }
 
 # Calculate estimate for the conditional partial R-indicator.
-# Returns a dataframe with rows in the order of levels(categories).
+# Returns a vector with values that matches the order of levels(categories).
 calc_ri_by_cat_conditional <- function(
   categories, other_categories, prop, weights
 ) {
@@ -144,11 +144,11 @@ calc_ri_by_cat_conditional <- function(
 
   category_levels <- levels(categories)
   value_order <- match(category_levels, pv_by_cat$category)
-  data.frame(category = category_levels, val = ri[value_order])
+  ri[value_order]
 }
 
 # Calculate standard error for the conditional partial R-indicator.
-# Returns a dataframe with rows in the order of levels(categories).
+# Returns a vector with values that matches the order of levels(categories).
 calc_ri_se_by_cat_conditional <- function(
   categories, other_categories, prop, sigma, z, weights, total_var_func
 ) {
@@ -171,10 +171,10 @@ calc_ri_se_by_cat_conditional <- function(
   for (i in seq_len(category_cnt)) {
     is_cat <- (categories == category_levels[i])
     zw_cat <- zw[is_cat, , drop = FALSE]  # Only the rows where is_cat is TRUE.
-    pp_cat <- pp * is_cat # Value pp where is_cat is TRUE, 0 elsewhere.
 
     A <- crossprod(prop_deviation[is_cat], zw_cat)
     B <- crossprod(z_deviation[is_cat, , drop = FALSE], zw_cat)
+    pp_cat <- pp * is_cat # Value pp where is_cat is TRUE, 0 elsewhere.
 
     v1 <- 4 * A %*% tcrossprod(sigma, A)
     v2 <- 2 * sum(diag(B %*% sigma %*% B %*% sigma))
@@ -184,7 +184,7 @@ calc_ri_se_by_cat_conditional <- function(
   }
   ri_se = sqrt(variance)
 
-  data.frame(category = category_levels, val = ri_se)
+  ri_se
 }
 
 # Calculate estimate for coefficient of variation.

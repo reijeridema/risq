@@ -37,25 +37,30 @@ get_ref <- function(
   ref <- do.call(what = getRIndicator, args = args)
   ref <- ref$partialR$byVariables
 
-  # Build reference solution from relevant columns.
-  ref <- data.frame(
+  # Build unconditional and conditional reference data frames.
+  ref_u <- data.frame(
     variable = ref$variable,
-    ri_u = ref$Pu,
-    ri_se_u = ref$PuSE,
-    ri_c = ref$Pc,
-    ri_se_c = ref$PcSEApprox
+    value = ref$Pu,
+    se = ref$PuSE
+  )
+  ref_c <- data.frame(
+    variable = ref$variable,
+    value = ref$Pc,
+    se = ref$PcSEApprox
   )
 
   # Select relevent rows in correct order.
-  ref <- ref[match(variables, ref$variable), ]
-  row.names(ref) <- NULL
+  ref_u <- ref_u[match(variables, ref$variable), ]
+  row.names(ref_u) <- NULL
+  ref_c <- ref_c[match(variables, ref$variable), ]
+  row.names(ref_c) <- NULL
 
-  # Set unconditional values to 0 for variables outside model.
+  # Set conditional values to 0 for variables outside model.
   if (length(other_variables) > 0) {
-    ref[ref$variable %in% other_variables, c("ri_c", "ri_se_c")] <- 0
+    ref_c[ref_c$variable %in% other_variables, c("value", "se")] <- 0
   }
 
-  ref
+  list("unconditional" = ref_u, "conditional" = ref_c)
 }
 
 test_ri_vs_ref <- function(family) {
@@ -65,9 +70,15 @@ test_ri_vs_ref <- function(family) {
   predictor <- formula[c(1, 3)]
   variables <- "x"
   robj <- risq(predictor, family, data_1)
-  ri_tst <- ri_by_var(robj, target, variables)
   ri_ref <- get_ref(variables, formula, family, data_1)
-  expect_equal(ri_tst, ri_ref)
+  ri_tst_u <- ri_by_var(robj, target, variables, "unconditional")
+  expect_equal(ri_tst_u, ri_ref$unconditional)
+  ri_tst_u_no_se <- ri_by_var(robj, target, variables, "unconditional", FALSE)
+  expect_equal(ri_tst_u_no_se, ri_tst_u[-3])
+  ri_tst_c <- ri_by_var(robj, target, variables, "conditional")
+  expect_equal(ri_tst_c, ri_ref$conditional)
+  ri_tst_c_no_se <- ri_by_var(robj, target, variables, "conditional", FALSE)
+  expect_equal(ri_tst_c_no_se, ri_tst_c[-3])
 
   # Using data_1 with single model variable.
   formula <- r ~ x
@@ -75,9 +86,11 @@ test_ri_vs_ref <- function(family) {
   predictor <- formula[c(1, 3)]
   variables <- c("x", "z")
   robj <- risq(predictor, family, data_1)
-  ri_tst <- ri_by_var(robj, target, variables)
+  ri_tst_u <- ri_by_var(robj, target, variables, "unconditional")
+  ri_tst_c <- ri_by_var(robj, target, variables, "conditional")
   # Reference solution cannot handle this case. Test NA pattern.
-  expect_equal(which(is.na(ri_tst)), c(7, 9))
+  expect_equal(which(is.na(ri_tst_u)), integer(0))
+  expect_equal(which(is.na(ri_tst_c)), c(3, 5))
 
   # Using data_2 with default weights and strata (SI).
   formula <- response ~ gender + age + job
@@ -86,9 +99,15 @@ test_ri_vs_ref <- function(family) {
   variables <- c("gender", "age", "urbanisation")
   robj <- risq(predictor, family, data_2)
   expect_equal(robj$design$type, "SI")
-  ri_tst <- ri_by_var(robj, target, variables)
   ri_ref <- get_ref(variables, formula, family, data_2)
-  expect_equal(ri_tst, ri_ref)
+  ri_tst_u <- ri_by_var(robj, target, variables, "unconditional")
+  expect_equal(ri_tst_u, ri_ref$unconditional)
+  ri_tst_u_no_se <- ri_by_var(robj, target, variables, "unconditional", FALSE)
+  expect_equal(ri_tst_u_no_se, ri_tst_u[-3])
+  ri_tst_c <- ri_by_var(robj, target, variables, "conditional")
+  expect_equal(ri_tst_c, ri_ref$conditional)
+  ri_tst_c_no_se <- ri_by_var(robj, target, variables, "conditional", FALSE)
+  expect_equal(ri_tst_c_no_se, ri_tst_c[-3])
 
   # Using data_2 with custom weights and default strata (STSI).
   formula <- response ~ gender + age
@@ -98,11 +117,17 @@ test_ri_vs_ref <- function(family) {
   variables <- c("house_value", "age")
   robj <- risq(predictor, family, data_2, weights)
   expect_equal(robj$design$type, "STSI")
-  ri_tst <- ri_by_var(robj, target, variables)
   ri_ref <- suppressWarnings(
     get_ref(variables, formula, family, data_2, weights)
   )
-  expect_equal(ri_tst, ri_ref)
+  ri_tst_u <- ri_by_var(robj, target, variables, "unconditional")
+  expect_equal(ri_tst_u, ri_ref$unconditional)
+  ri_tst_u_no_se <- ri_by_var(robj, target, variables, "unconditional", FALSE)
+  expect_equal(ri_tst_u_no_se, ri_tst_u[-3])
+  ri_tst_c <- ri_by_var(robj, target, variables, "conditional")
+  expect_equal(ri_tst_c, ri_ref$conditional)
+  ri_tst_c_no_se <- ri_by_var(robj, target, variables, "conditional", FALSE)
+  expect_equal(ri_tst_c_no_se, ri_tst_c[-3])
 
   # Using data_2 with custom weights and custom strata (PPS).
   formula <- response ~ gender + age
@@ -113,11 +138,17 @@ test_ri_vs_ref <- function(family) {
   variables <- c("house_value", "age", "job")
   robj <- risq(predictor, family, data_2, weights, strata)
   expect_equal(robj$design$type, "PPS")
-  ri_tst <- ri_by_var(robj, target, variables)
   ri_ref <- suppressWarnings(
     get_ref(variables, formula, family, data_2, weights, strata)
   )
-  expect_equal(ri_tst, ri_ref)
+  ri_tst_u <- ri_by_var(robj, target, variables, "unconditional")
+  expect_equal(ri_tst_u, ri_ref$unconditional)
+  ri_tst_u_no_se <- ri_by_var(robj, target, variables, "unconditional", FALSE)
+  expect_equal(ri_tst_u_no_se, ri_tst_u[-3])
+  ri_tst_c <- ri_by_var(robj, target, variables, "conditional")
+  expect_equal(ri_tst_c, ri_ref$conditional)
+  ri_tst_c_no_se <- ri_by_var(robj, target, variables, "conditional", FALSE)
+  expect_equal(ri_tst_c_no_se, ri_tst_c[-3])
 }
 
 test_that("ri_by_var values equal reference solution (binomial)", {
@@ -132,7 +163,7 @@ test_that("ri_by_var detects invalid input", {
   # Test invalid risq object.
   robj <- risq(~ x + y, "gaussian", data_1)
   class(robj) <- "risque"
-  expect_error(ri_by_var(robj, "r", "x"), "`robj` must be a risq object")
+  expect_error(ri_by_var(robj, "r", "x"), "`x` must be a risq object")
 
   # Test invalid target argument.
   robj <- risq(~ x, "gaussian", data_1)
@@ -161,6 +192,14 @@ test_that("ri_by_var detects invalid input", {
   data_missing_z$z[5] <- NA
   robj <- risq(~ x + y, "binomial", data_missing_z)
   expect_error(ri_by_var(robj, "r", c("x", "z")), "`variables` must not contain `NA` values in risq data")
+
+  # Test invalid type argument.
+  robj <- risq(~ x + y, "binomial", data_1)
+  expect_error(ri_by_var(robj, "r", "x", type = "nonconditional"), "should be one of")
+
+  # Test invalid include_se argument.
+  robj <- risq(~ x + y, "binomial", data_1)
+  expect_error(ri_by_var(robj, "r", "x", include_se = "FALSE"), "`include_se` must be TRUE or FALSE")
 })
 
 test_that("ri_by_var handles variables with empty levels", {
