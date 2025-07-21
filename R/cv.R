@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
-#' cv_hlc <- cv(risq_hlc, "response")
+#' cv(risq_hlc, "response_1")
 #'
 #' @export
 cv <- function(x, target, include_se = TRUE) {

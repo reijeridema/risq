@@ -104,7 +104,7 @@ test_cv_vs_ref <- function(family) {
   expect_equal(which(is.na(cv_tst_c)), c(13, 14, 15, 18, 19, 20))
 
   # Using data_2 with default weights and strata (SI).
-  formula <- response ~ gender + age + job
+  formula <- response_1 ~ gender + age + job
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   variables <- c("gender", "age", "marital_status")
@@ -121,7 +121,7 @@ test_cv_vs_ref <- function(family) {
   expect_equal(cv_tst_c_no_se, cv_tst_c[-4])
 
   # Using data_2 with custom weights and default strata (STSI).
-  formula <- response ~ gender + age
+  formula <- response_2 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:5, length.out = nrow(data_2))
@@ -141,7 +141,7 @@ test_cv_vs_ref <- function(family) {
   expect_equal(cv_tst_c_no_se, cv_tst_c[-4])
 
   # Using data_2 with custom weights and custom strata (PPS).
-  formula <- response ~ gender + age
+  formula <- response_3 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:7, length.out = nrow(data_2))

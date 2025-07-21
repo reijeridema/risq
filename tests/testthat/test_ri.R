@@ -39,7 +39,7 @@ test_ri_vs_ref <- function(family) {
   expect_equal(ri_tst_no_se, list(value = ri_tst$value))
 
   # Using data_2 with default weights and strata (SI).
-  formula <- response ~ gender + age + urbanisation
+  formula <- response_1 ~ gender + age + urbanisation
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   robj <- risq(predictor, family, data_2)
@@ -51,7 +51,7 @@ test_ri_vs_ref <- function(family) {
   expect_equal(ri_tst_no_se, list(value = ri_tst$value))
 
   # Using data_2 with custom weights and default strata (STSI).
-  formula <- response ~ gender + age
+  formula <- response_2 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:5, length.out = nrow(data_2))
@@ -64,7 +64,7 @@ test_ri_vs_ref <- function(family) {
   expect_equal(ri_tst_no_se, list(value = ri_tst$value))
 
   # Using data_2 with custom weights and custom strata (PPS).
-  formula <- response ~ gender + age
+  formula <- response_3 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:7, length.out = nrow(data_2))
@@ -90,7 +90,7 @@ test_that("ri detects invalid input", {
   # Test invalid risq object.
   robj <- risq(~ gender + age, "binomial", data_2)
   class(robj) <- "brisq"
-  expect_error(ri(robj, "response"), "`x` must be a risq object")
+  expect_error(ri(robj, "response_1"), "`x` must be a risq object")
 
   # Test invalid target argument.
   robj <- risq(~ gender + job, "binomial", data_2)
@@ -107,6 +107,6 @@ test_that("ri detects invalid input", {
 
   # Test invalid include_se argument.
   robj <- risq(~ gender + job, "binomial", data_2)
-  expect_error(ri(robj, "response", include_se = 0), "`include_se` must be TRUE or FALSE")
-  expect_error(ri(robj, "response", include_se = c(TRUE, TRUE)), "`include_se` must be TRUE or FALSE")
+  expect_error(ri(robj, "response_1", include_se = 0), "`include_se` must be TRUE or FALSE")
+  expect_error(ri(robj, "response_1", include_se = c(TRUE, TRUE)), "`include_se` must be TRUE or FALSE")
 })

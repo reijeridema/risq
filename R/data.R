@@ -12,7 +12,9 @@
 #' - `job`: employment status (`factor`),
 #' - `house_value`: house value category (`factor`),
 #' - `urbanisation`: degree of urbanisation (`factor`),
-#' - `response`: survey response status (`logical`).
+#' - `response_1`: survey response status (`logical`).
+#' - `response_2`: survey response status (`logical`).
+#' - `response_3`: survey response status (`logical`).
 #'
 #' @source Statistics Netherlands.
 "hlc"

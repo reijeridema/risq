@@ -31,7 +31,7 @@
 #' @family risq methods
 #'
 #' @examples
-#' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
+#' risq(predictor = ~ gender + age, data = hlc)
 #'
 #' @export
 risq <- function(

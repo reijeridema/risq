@@ -28,7 +28,7 @@
 #' @examples
 #' # Note: a low iteration count is used to limit computing time of example.
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
-#' bs <- bootstrap(risq_hlc, ri, target = "response", iterations = 5)
+#' bs <- bootstrap(risq_hlc, ri, target = "response_1", iterations = 5)
 #' mean(bs)
 #' var(bs)
 #'
@@ -96,7 +96,11 @@ bootstrap <- function(x, fun, ..., seed = NULL, iterations = 1000L) {
 #' # Note: a low iteration count is used to limit computing time of example.
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
 #' bs <- bootstrap(
-#'   risq_hlc, ri_by_var, target = "response", variables = "age", iterations = 5
+#'   risq_hlc,
+#'   ri_by_var,
+#'   target = "response_1",
+#'   variables = "age",
+#'   iterations = 5
 #' )
 #' mean(bs)
 #'
@@ -162,7 +166,11 @@ var.default <- function(x, ...) {
 #' # Note: a low iteration count is used to limit computing time of example.
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
 #' bs <- bootstrap(
-#'   risq_hlc, ri_by_cat, target = "response", variables = "age", iterations = 5
+#'   risq_hlc,
+#'   ri_by_cat,
+#'   target = "response_1",
+#'   variables = "age",
+#'   iterations = 5
 #' )
 #' var(bs)
 #'
@@ -203,7 +211,7 @@ var.bootstrap <- function(x, ...) {
 #' @examples
 #' # Note: a low iteration count is used to limit computing time of example.
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
-#' bs <- bootstrap(risq_hlc, cv, target = "response", iterations = 5)
+#' bs <- bootstrap(risq_hlc, cv, target = "response_1", iterations = 5)
 #' quantile(bs, probs = c(0.05, 0.95))
 #'
 #' @importFrom stats quantile
@@ -243,19 +251,12 @@ quantile.bootstrap <- function(x, ...) {
 #' @family bootstrap methods
 #'
 #' @examples
-#' # Prepare data with multiple response columns
-#' data <- hlc[c("age", "gender")]
-#' data$resp1 <- hlc$response
-#' no_resp <- which(!hlc$response)
-#' resp2 <- hlc$response
-#' resp2[no_resp[seq(1, length(no_resp), 2)]] <- TRUE
-#' data$resp2 <- resp2
-#'
 #' # Note: a low iteration count is used to limit computing time of example.
-#' risq_hlc <- risq(predictor = ~ age +gender, data = data)
-#' bs1 <- bootstrap(risq_hlc, ri, target = "resp1", seed = 0, iterations = 5)
-#' bs2 <- bootstrap(risq_hlc, ri, target = "resp2", seed = 0, iterations = 5)
-#' mean(bs2 - bs1)
+#' risq_hlc <- risq(predictor = ~ age + gender, data = hlc)
+#' a <- bootstrap(risq_hlc, ri, target = "response_1", seed = 0, iterations = 5)
+#' b <- bootstrap(risq_hlc, ri, target = "response_2", seed = 0, iterations = 5)
+#' mean(b - a)
+#' var(b - a)
 #'
 #' @export
 `-.bootstrap` <- function(x, y) {
