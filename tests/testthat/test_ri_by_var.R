@@ -93,7 +93,7 @@ test_ri_vs_ref <- function(family) {
   expect_equal(which(is.na(ri_tst_c)), c(3, 5))
 
   # Using data_2 with default weights and strata (SI).
-  formula <- response ~ gender + age + job
+  formula <- response_1 ~ gender + age + job
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   variables <- c("gender", "age", "urbanisation")
@@ -110,7 +110,7 @@ test_ri_vs_ref <- function(family) {
   expect_equal(ri_tst_c_no_se, ri_tst_c[-3])
 
   # Using data_2 with custom weights and default strata (STSI).
-  formula <- response ~ gender + age
+  formula <- response_2 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:5, length.out = nrow(data_2))
@@ -130,7 +130,7 @@ test_ri_vs_ref <- function(family) {
   expect_equal(ri_tst_c_no_se, ri_tst_c[-3])
 
   # Using data_2 with custom weights and custom strata (PPS).
-  formula <- response ~ gender + age
+  formula <- response_3 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:7, length.out = nrow(data_2))

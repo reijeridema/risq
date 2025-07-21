@@ -33,7 +33,7 @@
 #'
 #' @examples
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
-#' ri_by_var_hlc <- ri_by_var(risq_hlc, "response", c("gender", "age", "job"))
+#' ri_by_var(risq_hlc, "response_1", c("gender", "age", "job"))
 #'
 #' @export
 ri_by_var <- function(

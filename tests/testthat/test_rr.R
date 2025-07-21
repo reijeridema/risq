@@ -39,7 +39,7 @@ test_rr_vs_ref <- function(family) {
   expect_equal(rr_tst, rr_ref)
 
   # Using data_2 with default weights and strata (SI).
-  formula <- response ~ gender + age + urbanisation
+  formula <- response_1 ~ gender + age + urbanisation
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   robj <- risq(predictor, family, data_2)
@@ -49,7 +49,7 @@ test_rr_vs_ref <- function(family) {
   expect_equal(rr_tst, rr_ref)
 
   # Using data_2 with custom weights and default strata (STSI).
-  formula <- response ~ gender + age
+  formula <- response_2 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:5, length.out = nrow(data_2))
@@ -60,7 +60,7 @@ test_rr_vs_ref <- function(family) {
   expect_equal(rr_tst, rr_ref)
 
   # Using data_2 with custom weights and custom strata (PPS).
-  formula <- response ~ gender + age
+  formula <- response_3 ~ gender + age
   target <- as.character(formula[[2]])
   predictor <- formula[c(1, 3)]
   weights <- rep(1:7, length.out = nrow(data_2))
@@ -84,12 +84,12 @@ test_that("rr detects invalid input", {
   # Test invalid risq object.
   robj <- risq(~ gender + age, "binomial", data_2)
   class(robj) <- NULL
-  expect_error(rr(robj, "response"), "`x` must be a risq object")
+  expect_error(rr(robj, "response_1"), "`x` must be a risq object")
 
   # Test invalid target argument.
-  robj <- risq(~ gender + response, "binomial", data_2)
+  robj <- risq(~ gender + response_1, "binomial", data_2)
   expect_error(rr(robj, 1), "`target` must be a string")
-  expect_error(rr(robj, "response"), "`target` must not be in risq predictor")
+  expect_error(rr(robj, "response_1"), "`target` must not be in risq predictor")
   expect_error(rr(robj, "INVALID"), "`target` must be present in risq data")
   expect_error(rr(robj, "house_value"), "`target` must be of type logical in risq data")
 

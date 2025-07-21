@@ -35,7 +35,7 @@
 #'
 #' @examples
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
-#' cv_by_cat_hlc <- cv_by_cat(risq_hlc, "response", c("gender", "age", "job"))
+#' cv_by_cat(risq_hlc, "response_1", c("gender", "age", "job"))
 #'
 #' @export
 cv_by_cat <- function(x, target, variables, type = c("unconditional", "conditional"), include_se = TRUE) {

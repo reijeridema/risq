@@ -35,7 +35,7 @@
 #'
 #' @examples
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
-#' ri_by_cat_hlc <- ri_by_cat(risq_hlc, "response", c("gender", "age", "job"))
+#' ri_by_cat(risq_hlc, "response_1", c("gender", "age", "job"))
 #'
 #' @export
 ri_by_cat <- function(

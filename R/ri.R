@@ -19,7 +19,7 @@
 #'
 #' @examples
 #' risq_hlc <- risq(predictor = ~ gender + age, data = hlc)
-#' ri_hlc <- ri(risq_hlc, "response")
+#' ri(risq_hlc, "response_1")
 #'
 #' @export
 ri <- function(x, target, include_se = TRUE) {
