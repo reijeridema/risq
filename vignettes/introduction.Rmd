@@ -1,0 +1,216 @@
+---
+title: "Introduction to RISQ"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introduction to RISQ}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r knitr, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, include = FALSE}
+library(risq)
+```
+
+RISQ is a package for the estimation of Representativity Indicators for Survey Quality.
+That is, it provides metrics that can be used to evaluate survey quality.
+
+### Overview
+
+The main functions of the RISQ package are:
+
+- `risq()`: Create a RISQ object for a data set.
+- `rr()`: Estimate response rate for a RISQ object.
+- `ri()`, `ri_by_var()`, `ri_by_cat()`: Estimate R-indicator for a RISQ object.
+- `cv()`, `cv_by_var()`, `cv_by_cat()`: Estimate coefficient of variation for a RISQ object.
+- `bootstrap()`: Create a bootstrap object for a RISQ object and indicator function.
+- `mean()`, `var()`, `quantile()` and `-` for bootstrap objects.
+
+### Data
+
+The RISQ package provides the dataset `hlc` for testing and tutorial purposes.
+The `hlc` dataset is a public subset of data from a survey on Household Living Conditions conducted by Statistics Netherlands.
+
+```{r hlc_head}
+head(hlc)
+```
+
+In this introduction, we use a subset of the `hlc` data to limit the computation time of the examples.
+
+```{r hlc_subset}
+data <- hlc[seq(1, nrow(hlc), 40), ]
+```
+
+## Creating a RISQ object
+
+Indicator functions take a RISQ object as first argument.
+This way, a RISQ object can be created once, and used as input for all indicator functions.
+
+A RISQ object includes data, a model formula for estimating response propensities, the regression type, and sampling weights and strata.
+
+The data must hold a record for each unit in the sample, with information relevant to the model.
+There should be at least one target variable that describes whether the unit did or did not respond to the survey.
+Note that it is assumed that administrative non-response and ineligible units have been omitted prior to evaluation.
+RISQ does not distinguish between different types of non-response, and an adjustment for non-observed ineligibility is not possible.
+RISQ supports only RR1, according to AAPOR guidelines.
+
+The variables used in the response model formula must all be present in the data.
+
+The regression type is `binomial` by default, but can also be specified as `gaussian`.
+
+It is assumed that the sampling design has a fixed sample size, and population units are selected without replacement.
+The type of sampling design is derived from the sampling weights and strata.
+If both weights and strata are omitted, it is assumed that the data set is a full enumeration, i.e. all population units have been selected.
+If there is a single stratum with constant weights, a simple random sample (SI) design is assumed.
+If there are multiple strata with constant weights within each stratum, a stratified simple random sample (STSI) design is assumed.
+If sampling weights are not constant within each stratum, a probability-proportional-to-size (PPS) design is assumed.
+
+The example below creates a RISQ object with four predictors included as main effects, based on a simple random sample with sampling weights equal to 250.
+
+```{r risq_object}
+model <- formula(~ age + gender + house_value + household)
+weights <- rep(250, nrow(data))
+risq_data <- risq(predictor = model, family = "binomial", data = data, weights = weights)
+risq_data
+```
+
+## Estimating indicators
+
+R-indicators and coefficients of variation are the main indicators provided by the RISQ package.
+The response rate plays a key part in the estimation of these indicators.
+
+The functions for indicator estimation take a RISQ object and a target variable as input.
+The target variable must be a logical variable in the RISQ object data, describing whether the sample unit responded or not.
+
+### Response rate
+
+The response rate estimates the proportion of the sample that responded, based on the response model.
+
+```{r indicator_rr}
+rr(risq_data, target = "response_3")
+```
+
+### R-indicator
+
+The R-indicator measures the standard deviation in estimated response propensities for the specified set of variables.
+It it based on the distance to constant response propensities from a so-called weak representative response perspective.
+R-indicators are transformed to a scale from 0 to 1, such that 0 is the worst and 1 is the best case.
+
+```{r indicator_ri}
+ri(risq_data, target = "response_3")
+```
+
+### Coefficient of Variation
+
+The coefficient of variation is an additional measure that equals the standard deviation of estimated response propensities over the response rate.
+It approximates the non-response bias for means and sums based on the response.
+coefficients of variation are non-negative values, with 0 being the best case.
+
+```{r indicator_cv}
+cv(risq_data, target = "response_3")
+```
+
+## Partial indicators at variable level
+
+Partial R-indicators and coefficients of variation at the variable level can be used to determine the contribution of single variables.
+These partial indicators can be estimated using the `ri_by_var()` and `cv_by_var()` functions.
+The variables for which to estimate indicator values, must be provided as input to the partial indicator function.
+Any categorical variable that is present in the data can be used, including variables that are not present in the regression model.
+
+Partial indicators come in two types, `unconditional` and `conditional`.
+Unconditional indicators correspond to the total contribution of a variable, whereas conditional indicators show the unique contributions.
+At variable level, partial R-indicators have values between 0 and 0.5 and coefficients of variation are non-negative.
+In both cases, the ideal value is 0.
+
+Note that for variables not present in the regression model, only unconditional indicator values make sense.
+Unconditional indicators are always 0 for such variables.
+
+As an example, we estimate the unconditional and conditional partial R-indicators for the variables `age` and `marital_status`.
+
+```{r partial_by_var}
+ri_by_var(risq_data, target = "response_3", variables = c("age", "marital_status"), type = "unconditional")
+ri_by_var(risq_data, target = "response_3", variables = c("age", "marital_status"), type = "conditional")
+```
+
+## Partial indicators at category level
+
+Partial R-indicators and coefficients of variation at the category level can be used to zoom in to the contribution of single categories of variables.
+These partial indicators can be estimated using the `ri_by_cat()` and `cv_by_cat()` functions.
+Again, the variables for which to estimate indicator values must be provided as input to the partial indicator function.
+Any categorical variable that is present in the data can be used, including variables that are not present in the regression model.
+Estimates are provided for all categories of each of the specified variables.
+
+The partial indicators can be categorized as `unconditional` for total contribution, or `conditional` for unique contribution.
+At variable level, conditional partial R-indicators have values between 0 and 0.5 and conditional coefficients of variation are non-negative.
+Unconditional partial indicators are similar, but include a sign.
+A positive unconditional partial indicator suggests overrepresentation, while a negative unconditional partial indicator suggests underrepresentation.
+In all cases, the ideal value is 0.
+
+Here too, only unconditional indicator values make sense for variables not present in the regression model.
+
+As an example, we estimate the unconditional and conditional partial R-indicators for the categories of the variables `gender` and `job`.
+
+```{r partial_by_cat}
+ri_by_cat(risq_data, target = "response_3", variables = c("gender", "job"), type = "unconditional")
+ri_by_cat(risq_data, target = "response_3", variables = c("gender", "job"), type = "conditional")
+```
+
+## Bootstrapping
+
+For some values of interest related to the representativity indicators for survey quality, no general analytical approximation is known.
+Important examples are indicator quantiles and the standard errors for the difference between different target variables of the same survey.
+To allow the estimation of these values, RISQ implements bootstrapping of indicators using bootstrap objects.
+
+Below, bootstrap objects are created for the R-indicator of two different response variables.
+Note that the iteration count is low to limit the computing time of the example.
+In real applications, an iteration count of `500` is often a good starting point.
+
+```{r bootstrap_object}
+bs_ri_resp1 <- bootstrap(risq_data, fun = ri, seed = 0, target = "response_1", iterations = 10)
+bs_ri_resp3 <- bootstrap(risq_data, fun = ri, seed = 0, target = "response_3", iterations = 10)
+```
+
+The statistical functions `mean()`, `var()` and `quantile()` have been generalized to work with bootstrap objects.
+Further, the difference between two bootstrap objects can be calculated using the `-` operator.
+This operator should only be used on bootstrap objects created using the same RISQ object, with the same `fun`, `seed` and `iterations` arguments.
+
+## Estimating indicator quantiles
+
+The mean and standard error (and therefore the variance) of an indicator can be estimated directly using the appropriate indicator function.
+Quantiles, however, can only be estimated using bootstrapping.
+The below example shows how to estimate the 2.5% quantiles of an indicator, using its bootstrap object.
+
+```{r indicator_quantile}
+quantile(bs_ri_resp3, probs = c(0.025, 0.975))
+```
+
+## Estimating indicator differences
+
+RISQ allows the estimation of differences between indicators for different target variables of the same data.
+For the difference of indicator values, without standard errors, individual indicator values can simply be subtracted.
+
+```{r indicator_diff_1}
+ri_resp1 <- ri(risq_data, target = "response_1", include_se = FALSE)
+ri_resp3 <- ri(risq_data, target = "response_3", include_se = FALSE)
+ri_resp3$value - ri_resp1$value
+```
+
+The same value can be estimated using the mean of the difference of two bootstrap objects.
+
+```{r indicator_diff_2}
+bs_ri_diff31 <- bs_ri_resp3 - bs_ri_resp1
+mean(bs_ri_diff31)
+```
+
+The variance, standard error, and quantiles of indicator differences between target variables, can only be estimated using bootstrapping.
+
+```{r indicator_diff_3}
+sqrt(var(bs_ri_diff31))
+quantile(bs_ri_diff31, probs = c(0.025, 0.975))
+```
