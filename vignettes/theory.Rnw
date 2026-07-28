@@ -1,0 +1,6 @@
+\documentclass{article}
+\usepackage{pdfpages}
+%\VignetteIndexEntry{Theory behind RISQ}
+\begin{document}
+\includepdf[pages=-, fitpaper=true]{Theory_behind_RISQ.pdf}
+\end{document}
