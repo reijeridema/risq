@@ -118,6 +118,9 @@ risq <- function(
 #' @param x A `risq` object.
 #' @param ... Unused.
 #'
+#' @return
+#' No return value.
+#'
 #' @family risq methods
 #'
 #' @export

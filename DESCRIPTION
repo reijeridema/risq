@@ -1,23 +1,30 @@
 Package: risq
 Title: Representativity Indicators for Survey Quality
-Version: 0.0.0
+Version: 3.0.0
 Authors@R: c(
     person("Reijer", "Idema", email = "r.idema@cbs.nl", role = c("aut", "cre")),
     person("Barry", "Schouten", email = "jg.schouten@cbs.nl", role = c("aut"))
   )
+Maintainer: Reijer Idema <r.idema@cbs.nl>
 Description:
-    A package for the calculation of representativity indicators for survey
-    quality based on survey data.
+    Calculate representativity indicators for survey quality based on survey
+    data and response models. Use partial indicators to analyse the impact of
+    individual variables and categories. Monitor changes in representativity
+    during data collection. Improve representativity through adaptive survey
+    design. Supports both R-indicators and coefficients of variation. See also
+    Schouten, Cobben, Bethlehem (2009) <https://api.semanticscholar.org/CorpusID:33654901>,
+    Shlomo, Skinner, Schouten (2012) <doi:10.1016/j.jspi.2011.07.008> and
+    Schouten, Shlomo (2017) <doi:10.1111/insr.12159>.
 License: EUPL-1.2
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+Depends:
+    R (>= 2.10)
 Suggests:
     knitr,
     rmarkdown,
     testthat (>= 3.0.0)
-Config/testthat/edition: 3
-Depends:
-    R (>= 2.10)
 LazyData: true
 VignetteBuilder: knitr
+Config/roxygen2/markdown: TRUE
+Config/roxygen2/version: 8.0.0
+Config/testthat/edition: 3
