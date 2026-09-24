@@ -1,6 +1,6 @@
 Package: risq
 Title: Representativity Indicators for Survey Quality
-Version: 3.0.0
+Version: 3.0.1
 Authors@R: c(
     person("Reijer", "Idema", email = "r.idema@cbs.nl", role = c("aut", "cre")),
     person("Barry", "Schouten", email = "jg.schouten@cbs.nl", role = c("aut"))
@@ -16,6 +16,8 @@ Description:
     Shlomo, Skinner, Schouten (2012) <doi:10.1016/j.jspi.2011.07.008> and
     Schouten, Shlomo (2017) <doi:10.1111/insr.12159>.
 License: EUPL-1.2
+URL: https://github.com/reijeridema/risq
+BugReports: https://github.com/reijeridema/risq/issues
 Encoding: UTF-8
 Depends:
     R (>= 2.10)
