@@ -1,3 +1,7 @@
+[![CRAN](http://www.r-pkg.org/badges/version/risq)](https://cran.r-project.org/package=risq)
+[![R-CMD-check](https://github.com/reijeridema/risq/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/reijeridema/risq/actions/workflows/R-CMD-check.yaml)
+[![Mentioned in Awesome Official Statistics ](https://awesome.re/mentioned-badge.svg)](http://www.awesomeofficialstatistics.org)
+
 # RISQ
 
 RISQ is a package for the estimation of Representativity Indicators for Survey Quality.
@@ -39,8 +43,7 @@ cv(risq_hlc, "response_1")
 
 ### More Information
 
-For more information, read the vignettes.
+For more information, see the following documents.
 
-```
-browseVignettes("risq")
-```
+- [Introduction](https://cran.r-project.org/web/packages/risq/vignettes/introduction.html) to RISQ.
+- [Theory](https://cran.r-project.org/web/packages/risq/vignettes/theory.pdf) behind RISQ.
